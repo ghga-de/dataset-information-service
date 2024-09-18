@@ -1,0 +1,19 @@
+[project]
+# please adapt to package name
+name = "my_microservice"
+version = "0.1.0"
+description = "My-Microservice - a short description"
+dependencies = [
+    "typer >= 0.12",
+    "ghga-service-commons[api] >= 3.1",
+    "ghga-event-schemas >= 3.3",
+    "hexkit[akafka,s3,mongodb] >= 3.2",
+]
+
+[project.urls]
+# please adapt to package name
+Repository = "https://github.com/ghga-de/my-microservice"
+
+[project.scripts]
+# please adapt to package name
+my-microservice = "my_microservice.__main__:run"

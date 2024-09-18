@@ -60,15 +60,15 @@ attrs==24.2.0 \
     #   -c lock/requirements-dev.txt
     #   jsonschema
     #   referencing
-boto3==1.35.25 \
-    --hash=sha256:5df4e2cbe3409db07d3a0d8d63d5220ce3202a78206ad87afdbb41519b26ce45 \
-    --hash=sha256:b1cfad301184cdd44dfd4805187ccab12de8dd28dd12a11a5cfdace17918c6de
+boto3==1.35.30 \
+    --hash=sha256:d2851aec8e9dc6937977acbe9a5124ecc31b3ad5f50a10cd9ae52636da3f52fa \
+    --hash=sha256:d89c3459db89c5408e83219ab849ffd0146bc4285e75cdc67c6e45d390a12df2
     # via
     #   -c lock/requirements-dev.txt
     #   hexkit
-botocore==1.35.25 \
-    --hash=sha256:76c5706b2c6533000603ae8683a297c887abbbaf6ee31e1b2e2863b74b2989bc \
-    --hash=sha256:e58d60260abf10ccc4417967923117c9902a6a0cff9fddb6ea7ff42dc1bd4630
+botocore==1.35.30 \
+    --hash=sha256:3bb9f9dde001608671ea74681ac3cec06bbbb10cba8cb8c1387a25e843075ce0 \
+    --hash=sha256:ab5350e8a50e48d371fa2d517d65c29a40c43788cb9a15387f93eac5a23df0fd
     # via
     #   -c lock/requirements-dev.txt
     #   boto3
@@ -505,9 +505,9 @@ python-dotenv==1.0.1 \
     #   -c lock/requirements-dev.txt
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.10 \
-    --hash=sha256:2b06ad9e8d50c7a8db80e3b56dab590137b323410605af2be20d62a5f1ba1dc8 \
-    --hash=sha256:46eb3c6ce6fdda5fb1a03c7e11d490e407c6930a2703fe7aef4da71c374688fa
+python-multipart==0.0.12 \
+    --hash=sha256:045e1f98d719c1ce085ed7f7e1ef9d8ccc8c02ba02b5566d5f7521410ced58cb \
+    --hash=sha256:43dcf96cf65888a9cd3423544dd0d75ac10f7aa0c3c28a175bbcd00c9ce1aebf
     # via
     #   -c lock/requirements-dev.txt
     #   fastapi

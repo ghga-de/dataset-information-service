@@ -26,12 +26,28 @@ class InformationServicePort(ABC):
     metadata for files registered with the Internal File Registry service.
     """
 
+    class MismatchingDatasetAlreadyRegistered(RuntimeError):
+        """Raised when the given file ID is already registered but the info doesn't match."""
+
+        def __init__(self, *, dataset_id: str):
+            message = f"Mismatching mapping has already been registered for the dataset with ID {
+                dataset_id} ."
+            super().__init__(message)
+
     class MismatchingInformationAlreadyRegistered(RuntimeError):
         """Raised when the given file ID is already registered but the info doesn't match."""
 
         def __init__(self, *, file_id: str):
             message = f"Mismatching information for the file with ID {
                 file_id} has already been registered."
+            super().__init__(message)
+
+    class DatasetMappingNotFoundError(RuntimeError):
+        """Raised when information for a given file ID is not registered."""
+
+        def __init__(self, *, dataset_id: str):
+            message = f"Mapping for the dataset with ID {
+                dataset_id} is not registered."
             super().__init__(message)
 
     class InformationNotFoundError(RuntimeError):
@@ -43,14 +59,30 @@ class InformationServicePort(ABC):
             super().__init__(message)
 
     @abstractmethod
+    async def delete_dataset_information(self, metadata_dataset_id: str):
+        """Delete dataset to file ID mapping when the corresponding dataset is deleted."""
+
+    @abstractmethod
     async def deletion_requested(self, file_id: str):
         """Handle deletion requests for information associated with the given file ID."""
+
+    @abstractmethod
+    async def register_dataset_information(
+        self, metadata_dataset: event_schemas.MetadataDatasetOverview
+    ):
+        """Extract dataset to file ID mapping and store it."""
 
     @abstractmethod
     async def register_information(
         self, file_registered: event_schemas.FileInternallyRegistered
     ):
         """Store information for a file newly registered with the Internal File Registry."""
+
+    @abstractmethod
+    async def batch_serve_information(
+        self, dataset_id: str
+    ) -> tuple[list[FileInformation], list[str]]:
+        """Retrieve stored public information for the given dataset ID to be served by the API."""
 
     @abstractmethod
     async def serve_information(self, file_id: str) -> FileInformation:

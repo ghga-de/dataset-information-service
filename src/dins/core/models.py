@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field, PositiveInt
 
 
 class FileInformation(BaseModel):
-    """Basic public information container for files registered with the Internal File
+    """Public information container for files registered with the Internal File
     Registry service.
     """
 
@@ -29,6 +29,25 @@ class FileInformation(BaseModel):
     size: PositiveInt = Field(..., description="Size of the unencrypted file in bytes.")
     sha256_hash: str = Field(
         ...,
-        description="SHA256 hash of the unencrypted file content encoded as hexadecimal"
+        description="SHA256 hash of the unencrypted file content encoded as hexadecimal "
         " values as produced by hashlib.hexdigest().",
+    )
+
+
+class DatasetFileIDs(BaseModel):
+    """Contains ID of a dataset and its contained files."""
+
+    dataset_id: str = Field(..., description="Public accesion of a dataset.")
+    file_ids: list[str] = Field(
+        ...,
+        description="Public accesions for all files included in the corresponding dataset.",
+    )
+
+
+class DatasetInformation(BaseModel):
+    """Container bundling public information for a dataset."""
+
+    dataset_id: str = Field(..., description="Public accession of a dataset.")
+    file_information: list[FileInformation] = Field(
+        ..., description="Public information on all files belonging to a dataset."
     )

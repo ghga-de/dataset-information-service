@@ -25,16 +25,35 @@ from dins.ports.inbound.information_service import InformationServicePort
 router = APIRouter()
 
 RESPONSES = {
+    "datasetInformation": {
+        "description": (
+            "File information consisting of file id, sha256 checksum of the unencrypted "
+            "file content and file size of the unencrypted file in bytes for all files in a dataset.",
+        ),
+        "model": models.DatasetInformation,
+    },
+    "datasetInformationNotFound": {
+        "description": (
+            "Exceptions by ID:\n- datasetInformationNotFound: Information for one or more of the dataset files is not registered."
+        ),
+        "model": http_exceptions.HttpDatasetMissingInformationError.get_body_model(),
+    },
+    "datasetNotFound": {
+        "description": (
+            "Exceptions by ID:\n- datasetNotFound: No information registered for the given dataset ID."
+        ),
+        "model": http_exceptions.HttpDatasetNotFoundError.get_body_model(),
+    },
     "fileInformation": {
         "description": (
-            "A configuration or external communication error has occurred and details "
-            + "should not be communicated to the client"
+            "File information consisting of file id, sha256 checksum of the unencrypted"
+            "file content and file size of the unencrypted file in bytes.",
         ),
         "model": models.FileInformation,
     },
     "informationNotFound": {
         "description": (
-            "Exceptions by ID:\n- informationNotFound: No information registered for the given ID."
+            "Exceptions by ID:\n- informationNotFound: No information registered for the given file ID."
         ),
         "model": http_exceptions.HttpInformationNotFoundError.get_body_model(),
     },
@@ -44,7 +63,7 @@ RESPONSES = {
 @router.get(
     "/health",
     summary="health",
-    tags=["FileIngestService"],
+    tags=["DatasetInformationService"],
     status_code=200,
 )
 async def health():
@@ -53,13 +72,52 @@ async def health():
 
 
 @router.get(
+    "/dataset_information/{dataset_id}",
+    summary="Return public file information for the given dataset id, i.e. public accession.",
+    operation_id="getDatasetInformation",
+    tags=["DatsetInformationService"],
+    status_code=status.HTTP_200_OK,
+    response_description="File information consisting of file id, sha256 checksum of the unencrypted file content and file size of the unencrypted file in bytes for all files in a dataset.",
+    responses={
+        status.HTTP_200_OK: RESPONSES["datasetInformation"],
+        status.HTTP_404_NOT_FOUND: RESPONSES["datasetNotFound"]
+        | RESPONSES["datasetInformationNotFound"],
+    },
+)
+async def get_dataset_information(
+    dataset_id: str,
+    information_service: Annotated[
+        InformationServicePort, Depends(dummies.information_service_port)
+    ],
+):
+    """Retrieve and serve stored dataset information."""
+    try:
+        (
+            found_information,
+            missing_file_ids,
+        ) = await information_service.batch_serve_information(dataset_id=dataset_id)
+    except information_service.DatasetMappingNotFoundError as error:
+        raise http_exceptions.HttpDatasetNotFoundError(dataset_id=dataset_id) from error
+
+    if missing_file_ids:
+        # This should only happen if a dataset is already registered
+        # but not all files have hit the internal file registry yet
+        raise http_exceptions.HttpDatasetMissingInformationError(
+            dataset_id=dataset_id, missing_file_ids=missing_file_ids
+        )
+
+    return http_responses.DatasetInformation(
+        dataset_id=dataset_id, file_information=found_information
+    )
+
+
+@router.get(
     "/file_information/{file_id}",
     summary="Return public file information for the given file id, i.e. public accession.",
     operation_id="getFileInformation",
-    tags=["FileIngestService"],
+    tags=["DatasetInformationService"],
     status_code=status.HTTP_200_OK,
-    response_description="File information consisting of file id, sha256 checksum of"
-    " the unencrypted file content and file size of the unencrypted file in bytes.",
+    response_description="File information consisting of file id, sha256 checksum of the unencrypted file content and file size of the unencrypted file in bytes.",
     responses={
         status.HTTP_200_OK: RESPONSES["fileInformation"],
         status.HTTP_404_NOT_FOUND: RESPONSES["informationNotFound"],

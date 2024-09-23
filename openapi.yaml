@@ -94,11 +94,11 @@ components:
       type: object
     HttpDatasetNotFoundErrorData:
       properties:
-        file_id:
-          title: File Id
+        dataset_id:
+          title: Dataset Id
           type: string
       required:
-      - file_id
+      - dataset_id
       title: HttpDatasetNotFoundErrorData
       type: object
     HttpInformationNotFoundError:

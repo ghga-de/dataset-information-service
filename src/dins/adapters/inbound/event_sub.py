@@ -118,7 +118,7 @@ class EventSubTranslator(EventSubscriberProtocol):
         )
 
         await self._information_service.register_file_information(
-            file_registered=validated_payload
+            file=validated_payload
         )
 
     async def _consume_dataset_upserted(self, *, payload: JsonObject):
@@ -129,7 +129,7 @@ class EventSubTranslator(EventSubscriberProtocol):
         )
 
         await self._information_service.register_dataset_information(
-            metadata_dataset=validated_payload
+            dataset=validated_payload
         )
 
     async def _consume_dataset_deleted(self, *, payload: JsonObject):
@@ -140,7 +140,7 @@ class EventSubTranslator(EventSubscriberProtocol):
         )
 
         await self._information_service.delete_dataset_information(
-            metadata_dataset_id=validated_payload.accession
+            dataset_id=validated_payload.accession
         )
 
 
@@ -175,7 +175,7 @@ class InformationDeletionRequestedListener(
         self, resource_id: str, update: event_schemas.FileDeletionRequested
     ) -> None:
         """Consume change event for File Deletion Requests."""
-        await self.information_service.deletion_requested(file_id=update.file_id)
+        await self.information_service.delete_file_information(file_id=update.file_id)
 
     async def deleted(self, resource_id: str) -> None:
         """Consume event indicating the deletion of a File Deletion Request."""

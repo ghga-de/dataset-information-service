@@ -85,7 +85,7 @@ async def get_dataset_information(
 ):
     """Retrieve and serve stored dataset information."""
     try:
-        dataset_file_information = await information_service.batch_serve_information(
+        dataset_file_information = await information_service.serve_dataset_information(
             dataset_id=dataset_id
         )
     except information_service.DatasetNotFoundError as error:
@@ -116,7 +116,9 @@ async def get_file_information(
 ):
     """Retrieve and serve stored file information."""
     try:
-        file_information = await information_service.serve_information(file_id=file_id)
+        file_information = await information_service.serve_file_information(
+            file_id=file_id
+        )
     except information_service.InformationNotFoundError as error:
         raise http_exceptions.HttpInformationNotFoundError(file_id=file_id) from error
 

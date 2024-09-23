@@ -27,7 +27,7 @@ class HttpDatasetNotFoundError(HttpCustomExceptionBase):
     class DataModel(BaseModel):
         """Model for exception data"""
 
-        file_id: str
+        dataset_id: str
 
     def __init__(self, *, dataset_id: str, status_code: int = 404):
         """Construct message and init the exception."""
@@ -38,31 +38,6 @@ class HttpDatasetNotFoundError(HttpCustomExceptionBase):
                     dataset_id} is not registered."
             ),
             data={"dataset_id": dataset_id},
-        )
-
-
-class HttpDatasetMissingInformationError(HttpCustomExceptionBase):
-    """Raised when information for one or more files in a dataset is missing."""
-
-    exception_id = "datasetInformationNotFound"
-
-    class DataModel(BaseModel):
-        """Model for exception data"""
-
-        dataset_id: str
-        missing_file_ids: list[str]
-
-    def __init__(
-        self, *, dataset_id: str, missing_file_ids: list[str], status_code: int = 404
-    ):
-        """Construct message and init the exception."""
-        super().__init__(
-            status_code=status_code,
-            description=(
-                f"Not all information for the dataset with ID {
-                    dataset_id} is registered."
-            ),
-            data={"dataset_id": dataset_id, "missing_file_ids": missing_file_ids},
         )
 
 

@@ -53,7 +53,7 @@ INCOMING_PAYLOAD_MOCK = event_schemas.FileInternallyRegistered(
 )
 
 FILE_INFORMATION_MOCK = models.FileInformation(
-    file_id=FILE_ID, sha256_hash=DECRYPTED_SHA256, size=DECRYPTED_SIZE
+    accession=FILE_ID, sha256_hash=DECRYPTED_SHA256, size=DECRYPTED_SIZE
 )
 
 pytestmark = pytest.mark.asyncio()

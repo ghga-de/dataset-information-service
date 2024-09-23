@@ -30,13 +30,7 @@ RESPONSES = {
             "File information consisting of file id, sha256 checksum of the unencrypted "
             "file content and file size of the unencrypted file in bytes for all files in a dataset.",
         ),
-        "model": models.DatasetInformation,
-    },
-    "datasetInformationNotFound": {
-        "description": (
-            "Exceptions by ID:\n- datasetInformationNotFound: Information for one or more of the dataset files is not registered."
-        ),
-        "model": http_exceptions.HttpDatasetMissingInformationError.get_body_model(),
+        "model": models.DatasetFileInformation,
     },
     "datasetNotFound": {
         "description": (
@@ -80,8 +74,7 @@ async def health():
     response_description="File information consisting of file id, sha256 checksum of the unencrypted file content and file size of the unencrypted file in bytes for all files in a dataset.",
     responses={
         status.HTTP_200_OK: RESPONSES["datasetInformation"],
-        status.HTTP_404_NOT_FOUND: RESPONSES["datasetNotFound"]
-        | RESPONSES["datasetInformationNotFound"],
+        status.HTTP_404_NOT_FOUND: RESPONSES["datasetNotFound"],
     },
 )
 async def get_dataset_information(
@@ -92,22 +85,14 @@ async def get_dataset_information(
 ):
     """Retrieve and serve stored dataset information."""
     try:
-        (
-            found_information,
-            missing_file_ids,
-        ) = await information_service.batch_serve_information(dataset_id=dataset_id)
-    except information_service.DatasetMappingNotFoundError as error:
+        dataset_file_information = await information_service.batch_serve_information(
+            dataset_id=dataset_id
+        )
+    except information_service.DatasetNotFoundError as error:
         raise http_exceptions.HttpDatasetNotFoundError(dataset_id=dataset_id) from error
 
-    if missing_file_ids:
-        # This should only happen if a dataset is already registered
-        # but not all files have hit the internal file registry yet
-        raise http_exceptions.HttpDatasetMissingInformationError(
-            dataset_id=dataset_id, missing_file_ids=missing_file_ids
-        )
-
-    return http_responses.DatasetInformation(
-        dataset_id=dataset_id, file_information=found_information
+    return http_responses.HttpDatasetInformationResponse(
+        dataset_information=dataset_file_information
     )
 
 

@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 
 import ghga_event_schemas.pydantic_ as event_schemas
 
-from dins.core.models import FileInformation
+from dins.core.models import DatasetFileInformation, FileInformation
 
 
 class InformationServicePort(ABC):
@@ -42,12 +42,12 @@ class InformationServicePort(ABC):
                 file_id} has already been registered."
             super().__init__(message)
 
-    class DatasetMappingNotFoundError(RuntimeError):
+    class DatasetNotFoundError(RuntimeError):
         """Raised when information for a given file ID is not registered."""
 
-        def __init__(self, *, dataset_id: str):
+        def __init__(self, *, dataset_accession: str):
             message = f"Mapping for the dataset with ID {
-                dataset_id} is not registered."
+                dataset_accession} is not registered."
             super().__init__(message)
 
     class InformationNotFoundError(RuntimeError):
@@ -73,15 +73,13 @@ class InformationServicePort(ABC):
         """Extract dataset to file ID mapping and store it."""
 
     @abstractmethod
-    async def register_information(
+    async def register_file_information(
         self, file_registered: event_schemas.FileInternallyRegistered
     ):
         """Store information for a file newly registered with the Internal File Registry."""
 
     @abstractmethod
-    async def batch_serve_information(
-        self, dataset_id: str
-    ) -> tuple[list[FileInformation], list[str]]:
+    async def batch_serve_information(self, dataset_id: str) -> DatasetFileInformation:
         """Retrieve stored public information for the given dataset ID to be served by the API."""
 
     @abstractmethod

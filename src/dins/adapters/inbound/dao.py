@@ -35,6 +35,6 @@ async def get_dataset_dao(*, dao_factory: DaoFactoryProtocol) -> DatasetDaoPort:
     """Setup the DAOs using the specified provider of the DaoFactoryProtocol."""
     return await dao_factory.get_dao(
         name="dataset_file_ids",
-        dto_model=models.DatasetFileIDs,
+        dto_model=models.DatasetFileAccessions,
         id_field="dataset_id",
     )

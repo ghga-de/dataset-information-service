@@ -22,32 +22,34 @@ class FileInformation(BaseModel):
     Registry service.
     """
 
-    file_id: str = Field(
+    accession: str = Field(
         ...,
         description="Public identifier of the file associated with the given information",
     )
-    size: PositiveInt = Field(..., description="Size of the unencrypted file in bytes.")
-    sha256_hash: str = Field(
-        ...,
+    size: PositiveInt | None = Field(
+        default=None, description="Size of the unencrypted file in bytes."
+    )
+    sha256_hash: str | None = Field(
+        default=None,
         description="SHA256 hash of the unencrypted file content encoded as hexadecimal "
         " values as produced by hashlib.hexdigest().",
     )
 
 
-class DatasetFileIDs(BaseModel):
+class DatasetFileAccessions(BaseModel):
     """Contains ID of a dataset and its contained files."""
 
-    dataset_id: str = Field(..., description="Public accesion of a dataset.")
-    file_ids: list[str] = Field(
+    accession: str = Field(..., description="Public accesion of a dataset.")
+    file_accessions: list[str] = Field(
         ...,
         description="Public accesions for all files included in the corresponding dataset.",
     )
 
 
-class DatasetInformation(BaseModel):
+class DatasetFileInformation(BaseModel):
     """Container bundling public information for a dataset."""
 
-    dataset_id: str = Field(..., description="Public accession of a dataset.")
+    accession: str = Field(..., description="Public accession of a dataset.")
     file_information: list[FileInformation] = Field(
         ..., description="Public information on all files belonging to a dataset."
     )

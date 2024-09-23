@@ -50,23 +50,22 @@ class InformationService(InformationServicePort):
         try:
             await self._dataset_dao.get_by_id(id_=dataset_id)
         except ResourceNotFoundError:
-            log.info(f"Mapping for dataset with id {dataset_id} does not exist.")
+            log.info("Mapping for dataset with id %s does not exist.", dataset_id)
             return
 
         await self._dataset_dao.delete(id_=dataset_id)
-        log.info(f"Successfully deleted mapping for dataset with id {
-                 dataset_id}.")
+        log.info("Successfully deleted mapping for dataset with id %s.", dataset_id)
 
     async def deletion_requested(self, file_id: str):
         """Handle deletion requests for information associated with the given file ID."""
         try:
             await self._file_information_dao.get_by_id(id_=file_id)
         except ResourceNotFoundError:
-            log.info(f"Information for file with id {file_id} does not exist.")
+            log.info("Information for file with id %s does not exist.", file_id)
             return
 
         await self._file_information_dao.delete(id_=file_id)
-        log.info(f"Successfully deleted entries for file with id {file_id}.")
+        log.info("Successfully deleted entries for file with id %s.", file_id)
 
     async def register_dataset_information(
         self, metadata_dataset: event_schemas.MetadataDatasetOverview
@@ -85,14 +84,13 @@ class InformationService(InformationServicePort):
             log.debug(f"Found existing information for dataset {dataset_accession}")
             # Only log if information to be inserted is a mismatch
             if existing_mapping != dataset_accessions:
-                information_exists = self.MismatchingDatasetAlreadyRegistered(
-                    dataset_id=dataset_accession
-                )
-                log.error(information_exists)
+                log.info("Up")
         except ResourceNotFoundError:
             await self._dataset_dao.insert(dataset_accessions)
-            log.debug(f"Successfully inserted file accession mapping for dataset {
-                      dataset_accession}.")
+            log.debug(
+                "Successfully inserted file accession mapping for dataset %s.",
+                dataset_accession,
+            )
 
     async def register_file_information(
         self, file_registered: event_schemas.FileInternallyRegistered
@@ -110,7 +108,7 @@ class InformationService(InformationServicePort):
             existing_information = await self._file_information_dao.get_by_id(
                 id_=file_id
             )
-            log.debug(f"Found existing information for file {file_id}")
+            log.debug("Found existing information for file %s.", file_id)
             # Only log if information to be inserted is a mismatch
             if existing_information != file_information:
                 information_exists = self.MismatchingInformationAlreadyRegistered(
@@ -119,7 +117,7 @@ class InformationService(InformationServicePort):
                 log.error(information_exists)
         except ResourceNotFoundError:
             await self._file_information_dao.insert(file_information)
-            log.debug(f"Successfully inserted information for file {file_id} ")
+            log.debug("Successfully inserted information for file %s.", file_id)
 
     async def batch_serve_information(
         self, dataset_accession: str
@@ -127,13 +125,13 @@ class InformationService(InformationServicePort):
         """Retrieve stored public information for the given dataset ID to be served by the API."""
         try:
             dataset = await self._dataset_dao.get_by_id(dataset_accession)
-            log.debug(f"Found mapping for dataset {dataset_accession}.")
+            log.debug("Found mapping for dataset %s.", dataset_accession)
         except ResourceNotFoundError as error:
-            dataset_mapping_not_found = self.DatasetNotFoundError(
+            dataset_not_found = self.DatasetNotFoundError(
                 dataset_accession=dataset_accession
             )
-            log.warning(dataset_mapping_not_found)
-            raise dataset_mapping_not_found from error
+            log.warning(dataset_not_found)
+            raise dataset_not_found from error
 
         file_information: list[FileAccession | FileInformation] = []
 
@@ -151,7 +149,7 @@ class InformationService(InformationServicePort):
         """Retrieve stored public information for the given file ID to be served by the API."""
         try:
             file_information = await self._file_information_dao.get_by_id(file_id)
-            log.debug(f"Found information for file {file_id}.")
+            log.debug("Found information for file %s.", file_id)
         except ResourceNotFoundError as error:
             information_not_found = self.InformationNotFoundError(file_id=file_id)
             log.warning(information_not_found)

@@ -8,15 +8,32 @@ components:
           title: Accession
           type: string
         file_information:
-          description: Public information on all files belonging to a dataset.
+          description: Public information on all files belonging to a dataset or only
+            the accession,if no detailed information is available.
           items:
-            $ref: '#/components/schemas/FileInformation'
+            anyOf:
+            - $ref: '#/components/schemas/FileAccession'
+            - $ref: '#/components/schemas/FileInformation'
           title: File Information
           type: array
       required:
       - accession
       - file_information
       title: DatasetFileInformation
+      type: object
+    FileAccession:
+      description: 'Public identifier for one file information object, representing
+        not yet populated
+
+        or already deleted file information objects.'
+      properties:
+        accession:
+          description: Public identifier of the file associated with the given information
+          title: Accession
+          type: string
+      required:
+      - accession
+      title: FileAccession
       type: object
     FileInformation:
       description: 'Public information container for files registered with the Internal
@@ -29,21 +46,19 @@ components:
           title: Accession
           type: string
         sha256_hash:
-          anyOf:
-          - type: string
-          - type: 'null'
           description: SHA256 hash of the unencrypted file content encoded as hexadecimal  values
             as produced by hashlib.hexdigest().
           title: Sha256 Hash
+          type: string
         size:
-          anyOf:
-          - exclusiveMinimum: 0.0
-            type: integer
-          - type: 'null'
           description: Size of the unencrypted file in bytes.
+          exclusiveMinimum: 0.0
           title: Size
+          type: integer
       required:
       - accession
+      - size
+      - sha256_hash
       title: FileInformation
       type: object
     HTTPValidationError:

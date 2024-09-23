@@ -17,20 +17,27 @@
 from pydantic import BaseModel, Field, PositiveInt
 
 
-class FileInformation(BaseModel):
+class FileAccession(BaseModel):
+    """Public identifier for one file information object, representing not yet populated
+    or already deleted file information objects.
+    """
+
+    accession: str = Field(
+        default=...,
+        description="Public identifier of the file associated with the given information",
+    )
+
+
+class FileInformation(FileAccession):
     """Public information container for files registered with the Internal File
     Registry service.
     """
 
-    accession: str = Field(
-        ...,
-        description="Public identifier of the file associated with the given information",
+    size: PositiveInt = Field(
+        default=..., description="Size of the unencrypted file in bytes."
     )
-    size: PositiveInt | None = Field(
-        default=None, description="Size of the unencrypted file in bytes."
-    )
-    sha256_hash: str | None = Field(
-        default=None,
+    sha256_hash: str = Field(
+        default=...,
         description="SHA256 hash of the unencrypted file content encoded as hexadecimal "
         " values as produced by hashlib.hexdigest().",
     )
@@ -39,9 +46,9 @@ class FileInformation(BaseModel):
 class DatasetFileAccessions(BaseModel):
     """Contains ID of a dataset and its contained files."""
 
-    accession: str = Field(..., description="Public accesion of a dataset.")
+    accession: str = Field(default=..., description="Public accesion of a dataset.")
     file_accessions: list[str] = Field(
-        ...,
+        default=...,
         description="Public accesions for all files included in the corresponding dataset.",
     )
 
@@ -49,7 +56,9 @@ class DatasetFileAccessions(BaseModel):
 class DatasetFileInformation(BaseModel):
     """Container bundling public information for a dataset."""
 
-    accession: str = Field(..., description="Public accession of a dataset.")
-    file_information: list[FileInformation] = Field(
-        ..., description="Public information on all files belonging to a dataset."
+    accession: str = Field(default=..., description="Public accession of a dataset.")
+    file_information: list[FileAccession | FileInformation] = Field(
+        default=...,
+        description="Public information on all files belonging to a dataset or only the accession,"
+        "if no detailed information is available.",
     )

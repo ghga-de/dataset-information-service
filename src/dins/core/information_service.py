@@ -23,6 +23,7 @@ from dins.adapters.inbound.dao import DatasetDaoPort, FileInformationDaoPort
 from dins.core.models import (
     DatasetFileAccessions,
     DatasetFileInformation,
+    FileAccession,
     FileInformation,
 )
 from dins.ports.inbound.information_service import InformationServicePort
@@ -134,14 +135,14 @@ class InformationService(InformationServicePort):
             log.warning(dataset_mapping_not_found)
             raise dataset_mapping_not_found from error
 
-        file_information = []
+        file_information: list[FileAccession | FileInformation] = []
 
         for file_accession in dataset.file_accessions:
             try:
                 current_file_information = await self.serve_information(file_accession)
                 file_information.append(current_file_information)
             except self.InformationNotFoundError:
-                file_information.append(FileInformation(accession=file_accession))
+                file_information.append(FileAccession(accession=file_accession))
         return DatasetFileInformation(
             accession=dataset_accession, file_information=file_information
         )

@@ -134,7 +134,7 @@ class InformationService(InformationServicePort):
 
         file_information: list[FileAccession | FileInformation] = []
 
-        for file_accession in dataset.file_accessions:
+        for file_accession in sorted(dataset.file_accessions):
             try:
                 current_file_information = await self.serve_file_information(
                     file_accession

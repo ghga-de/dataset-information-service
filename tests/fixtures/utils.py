@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Utils for Fixture handling."""
+"""General testing utilities"""
 
 from pathlib import Path
 

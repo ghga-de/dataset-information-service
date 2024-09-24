@@ -12,34 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+"""A collection of http responses."""
 
-"""Used to define the location of the main FastAPI app object."""
+from fastapi.responses import JSONResponse
 
-import json
-from typing import Any
-
-from fastapi import FastAPI
-
-from dins.adapters.inbound.fastapi_.configure import get_openapi_schema
-from dins.adapters.inbound.fastapi_.routes import router
-
-app = FastAPI()
-app.include_router(router)
+from dins.core.models import FileInformation
 
 
-def custom_openapi() -> dict[str, Any]:
-    if app.openapi_schema:
-        return app.openapi_schema
-    openapi_schema = get_openapi_schema(app)
-    app.openapi_schema = openapi_schema
-    return openapi_schema
+class HttpFileInformationResponse(JSONResponse):
+    """Return relevant public information for the requested file."""
 
+    response_id = "fileInformation"
 
-def main():
-    """Print the openapi"""
-    print(json.dumps(custom_openapi()))
-
-
-if __name__ == "__main__":
-    main()
+    def __init__(self, *, file_information: FileInformation, status_code: int = 200):
+        """Construct message and init the response."""
+        super().__init__(content=file_information.model_dump(), status_code=status_code)

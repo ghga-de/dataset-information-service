@@ -1,8 +1,7 @@
 [project]
-# please adapt to package name
-name = "my_microservice"
-version = "0.1.0"
-description = "My-Microservice - a short description"
+name = "dins"
+version = "1.0.1"
+description = "Dataset Information Service - Providing public metadata about files registered with the Internal File Registry"
 dependencies = [
     "typer >= 0.12",
     "ghga-service-commons[api] >= 3.1",
@@ -11,9 +10,7 @@ dependencies = [
 ]
 
 [project.urls]
-# please adapt to package name
-Repository = "https://github.com/ghga-de/my-microservice"
+Repository = "https://github.com/ghga-de/dataset-information-service"
 
 [project.scripts]
-# please adapt to package name
-my-microservice = "my_microservice.__main__:run"
+dins = "dins.__main__:run"

@@ -12,34 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+"""Provides public metadata about files registered with the Internal File Registry"""
 
-"""Used to define the location of the main FastAPI app object."""
+from importlib.metadata import version
 
-import json
-from typing import Any
-
-from fastapi import FastAPI
-
-from dins.adapters.inbound.fastapi_.configure import get_openapi_schema
-from dins.adapters.inbound.fastapi_.routes import router
-
-app = FastAPI()
-app.include_router(router)
-
-
-def custom_openapi() -> dict[str, Any]:
-    if app.openapi_schema:
-        return app.openapi_schema
-    openapi_schema = get_openapi_schema(app)
-    app.openapi_schema = openapi_schema
-    return openapi_schema
-
-
-def main():
-    """Print the openapi"""
-    print(json.dumps(custom_openapi()))
-
-
-if __name__ == "__main__":
-    main()
+__version__ = version(__package__)

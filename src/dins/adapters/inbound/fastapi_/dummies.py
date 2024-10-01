@@ -13,33 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""A collection of dependency dummies that are used in view definitions but need to be
+replaced at runtime by actual dependencies.
+"""
 
-"""Used to define the location of the main FastAPI app object."""
+from typing import Annotated
 
-import json
-from typing import Any
+from fastapi import Depends
+from ghga_service_commons.api.di import DependencyDummy
 
-from fastapi import FastAPI
+from dins.ports.inbound.information_service import InformationServicePort
 
-from dins.adapters.inbound.fastapi_.configure import get_openapi_schema
-from dins.adapters.inbound.fastapi_.routes import router
+information_service_port = DependencyDummy("information_service")
 
-app = FastAPI()
-app.include_router(router)
-
-
-def custom_openapi() -> dict[str, Any]:
-    if app.openapi_schema:
-        return app.openapi_schema
-    openapi_schema = get_openapi_schema(app)
-    app.openapi_schema = openapi_schema
-    return openapi_schema
-
-
-def main():
-    """Print the openapi"""
-    print(json.dumps(custom_openapi()))
-
-
-if __name__ == "__main__":
-    main()
+InformationServiceDummy = Annotated[
+    InformationServicePort, Depends(information_service_port)
+]

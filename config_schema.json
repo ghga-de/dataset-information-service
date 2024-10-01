@@ -148,8 +148,6 @@
       "title": "Db Name",
       "type": "string"
     },
-<<<<<<< HEAD
-=======
     "dataset_change_event_topic": {
       "description": "Name of the topic for events that inform about datasets.",
       "examples": [
@@ -174,7 +172,6 @@
       "title": "Dataset Deletion Event Type",
       "type": "string"
     },
->>>>>>> ba1695c (WIP batch mode and migration)
     "file_registered_event_topic": {
       "description": "The name of the topic for events informing about new registered files for which the metadata should be made available.",
       "examples": [
@@ -321,12 +318,9 @@
     "kafka_servers",
     "db_connection_str",
     "db_name",
-<<<<<<< HEAD
-=======
     "dataset_change_event_topic",
     "dataset_upsertion_event_type",
     "dataset_deletion_event_type",
->>>>>>> ba1695c (WIP batch mode and migration)
     "file_registered_event_topic",
     "file_registered_event_type"
   ],

@@ -53,7 +53,7 @@ class DatasetFileAccessions(BaseModel):
 
 
 class DatasetFileInformation(BaseModel):
-    """Container bundling public information for a dataset."""
+    """Public information for a dataset."""
 
     accession: str = Field(default=..., description="Public accession of a dataset.")
     file_information: list[FileAccession | FileInformation] = Field(

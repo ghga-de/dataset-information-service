@@ -49,7 +49,7 @@ class DatasetFileAccessions(BaseModel):
     accession: str = Field(default=..., description="Public accesion of a dataset.")
     file_accessions: list[str] = Field(
         default=...,
-        description="Public accesions for all files included in the corresponding dataset.",
+        description="Public accessions for all files included in the corresponding dataset.",
     )
 
 

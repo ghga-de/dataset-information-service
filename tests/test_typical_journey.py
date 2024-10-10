@@ -236,8 +236,6 @@ async def test_dataset_information_journey(
     ]
 
     # update dataset to include file 3
-    expected_message = f"Updated existing dataset {dataset_accession}."
-
     caplog.clear()
     with caplog.at_level(level=logging.INFO, logger="dins.core.information_service"):
         await joint_fixture.kafka.publish_event(
@@ -246,8 +244,7 @@ async def test_dataset_information_journey(
             topic=joint_fixture.config.dataset_event_topic,
         )
         await joint_fixture.event_subscriber.run(forever=False)
-        assert len(caplog.messages) == 1
-        assert expected_message in caplog.messages
+        assert len(caplog.messages) == 0
 
     response = await joint_fixture.rest_client.get(url)
     assert response.status_code == 200

@@ -18,8 +18,9 @@ from pydantic import BaseModel, Field, PositiveInt
 
 
 class FileAccession(BaseModel):
-    """Public identifier for one file information object, representing not yet populated
-    or already deleted file information objects.
+    """Public identifier for one file information object.
+
+    Represents not-yet-populated or already deleted file information objects.
     """
 
     accession: str = Field(

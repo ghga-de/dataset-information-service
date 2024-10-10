@@ -36,7 +36,7 @@ class EventSubTranslatorConfig(BaseSettings):
     dataset_change_event_topic: str = Field(
         default=...,
         description="Name of the topic for events that inform about datasets.",
-        examples=["metadata_datasets"],
+        examples=["metadata-datasets"],
     )
     dataset_upsertion_event_type: str = Field(
         default=...,

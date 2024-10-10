@@ -43,7 +43,7 @@ class FileInformation(FileAccession):
 
 
 class DatasetFileAccessions(BaseModel):
-    """Contains ID of a dataset and its contained files."""
+    """The accession of a dataset and the accessions of all its files."""
 
     accession: str = Field(default=..., description="Public accession of a dataset.")
     file_accessions: list[str] = Field(

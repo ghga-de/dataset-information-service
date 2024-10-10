@@ -169,13 +169,13 @@ The service requires the following configuration parameters:
   ```
 
 
-- **`dataset_change_event_topic`** *(string, required)*: Name of the topic for events that inform about datasets.
+- **`dataset_event_topic`** *(string, required)*: Name of the topic for events that inform about datasets.
 
 
   Examples:
 
   ```json
-  "metadata_datasets"
+  "metadata-datasets"
   ```
 
 

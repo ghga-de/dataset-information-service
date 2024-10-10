@@ -26,10 +26,7 @@ router = APIRouter()
 
 RESPONSES = {
     "datasetInformation": {
-        "description": (
-            "File information consisting of file id, sha256 checksum of the unencrypted "
-            "file content and file size of the unencrypted file in bytes for all files in a dataset.",
-        ),
+        "description": ("File information for all files in a dataset."),
         "model": models.DatasetFileInformation,
     },
     "datasetNotFound": {
@@ -40,7 +37,7 @@ RESPONSES = {
     },
     "fileInformation": {
         "description": (
-            "File information consisting of file id, sha256 checksum of the unencrypted"
+            "File information consisting of file id/accession, sha256 checksum of the unencrypted"
             "file content and file size of the unencrypted file in bytes.",
         ),
         "model": models.FileInformation,
@@ -67,7 +64,7 @@ async def health():
 
 @router.get(
     "/dataset_information/{dataset_id}",
-    summary="Return public file information for the given dataset id, i.e. public accession.",
+    summary="Return public file information for the given dataset id/accession.",
     operation_id="getDatasetInformation",
     tags=["DatasetInformationService"],
     status_code=status.HTTP_200_OK,
@@ -98,7 +95,7 @@ async def get_dataset_information(
 
 @router.get(
     "/file_information/{file_id}",
-    summary="Return public file information for the given file id, i.e. public accession.",
+    summary="Return public file information for the given file id/accession.",
     operation_id="getFileInformation",
     tags=["DatasetInformationService"],
     status_code=status.HTTP_200_OK,

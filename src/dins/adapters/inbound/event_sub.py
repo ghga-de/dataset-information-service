@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 class EventSubTranslatorConfig(BaseSettings):
     """Config for publishing file upload-related events."""
 
-    dataset_change_event_topic: str = Field(
+    dataset_event_topic: str = Field(
         default=...,
         description="Name of the topic for events that inform about datasets.",
         examples=["metadata-datasets"],
@@ -77,7 +77,7 @@ class EventSubTranslator(EventSubscriberProtocol):
         self._information_service = information_service
 
         self.topics_of_interest = [
-            config.dataset_change_event_topic,
+            config.dataset_event_topic,
             config.file_registered_event_topic,
         ]
         self.types_of_interest = [

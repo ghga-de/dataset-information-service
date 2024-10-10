@@ -30,24 +30,21 @@ class InformationServicePort(ABC):
         """Raised when the given file ID is already registered but the info doesn't match."""
 
         def __init__(self, *, file_id: str):
-            message = f"Mismatching information for the file with ID {
-                file_id} has already been registered."
+            message = f"Mismatching information for the file with ID {file_id} has already been registered."
             super().__init__(message)
 
     class DatasetNotFoundError(RuntimeError):
         """Raised when information for a given file ID is not registered."""
 
         def __init__(self, *, dataset_accession: str):
-            message = f"Mapping for the dataset with ID {
-                dataset_accession} is not registered."
+            message = f"Mapping for the dataset with ID {dataset_accession} is not registered."
             super().__init__(message)
 
     class InformationNotFoundError(RuntimeError):
         """Raised when information for a given file ID is not registered."""
 
         def __init__(self, *, file_id: str):
-            message = f"Information for the file with ID {
-                file_id} is not registered."
+            message = f"Information for the file with ID {file_id} is not registered."
             super().__init__(message)
 
     @abstractmethod

@@ -33,10 +33,7 @@ class HttpDatasetNotFoundError(HttpCustomExceptionBase):
         """Construct message and init the exception."""
         super().__init__(
             status_code=status_code,
-            description=(
-                f"Information for the dataset with ID {
-                    dataset_id} is not registered."
-            ),
+            description=f"Information for the dataset with ID {dataset_id} is not registered.",
             data={"dataset_id": dataset_id},
         )
 

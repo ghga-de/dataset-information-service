@@ -78,20 +78,7 @@ class InformationService(InformationServicePort):
             accession=dataset_accession, file_accessions=file_accessions
         )
 
-        # inverted logic due to raw pymongo exception exposed by hexkit
-        try:
-            existing_mapping = await self._dataset_dao.get_by_id(id_=dataset_accession)
-            log.debug(f"Found existing information for dataset {dataset_accession}")
-            # Only log if information to be inserted is a mismatch
-            if existing_mapping != dataset_file_accessions:
-                await self._dataset_dao.update(dataset_file_accessions)
-                log.info("Updated existing dataset %s.", dataset_accession)
-        except ResourceNotFoundError:
-            await self._dataset_dao.insert(dataset_file_accessions)
-            log.debug(
-                "Successfully inserted file accession mapping for dataset %s.",
-                dataset_accession,
-            )
+        await self._dataset_dao.upsert(dataset_file_accessions)
 
     async def register_file_information(
         self, file: event_schemas.FileInternallyRegistered

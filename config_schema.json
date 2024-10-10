@@ -148,12 +148,12 @@
       "title": "Db Name",
       "type": "string"
     },
-    "dataset_change_event_topic": {
+    "dataset_event_topic": {
       "description": "Name of the topic for events that inform about datasets.",
       "examples": [
-        "metadata_datasets"
+        "metadata-datasets"
       ],
-      "title": "Dataset Change Event Topic",
+      "title": "Dataset Event Topic",
       "type": "string"
     },
     "dataset_upsertion_event_type": {
@@ -318,7 +318,7 @@
     "kafka_servers",
     "db_connection_str",
     "db_name",
-    "dataset_change_event_topic",
+    "dataset_event_topic",
     "dataset_upsertion_event_type",
     "dataset_deletion_event_type",
     "file_registered_event_topic",

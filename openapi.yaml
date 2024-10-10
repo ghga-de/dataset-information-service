@@ -1,7 +1,7 @@
 components:
   schemas:
     DatasetFileInformation:
-      description: Container bundling public information for a dataset.
+      description: Public information for a dataset.
       properties:
         accession:
           description: Public accession of a dataset.
@@ -9,7 +9,7 @@ components:
           type: string
         file_information:
           description: Public information on all files belonging to a dataset or only
-            the accession,if no detailed information is available.
+            the accession, if no detailed information is available.
           items:
             anyOf:
             - $ref: '#/components/schemas/FileAccession'
@@ -22,10 +22,10 @@ components:
       title: DatasetFileInformation
       type: object
     FileAccession:
-      description: 'Public identifier for one file information object, representing
-        not yet populated
+      description: 'Public identifier for one file information object.
 
-        or already deleted file information objects.'
+
+        Represents not-yet-populated or already deleted file information objects.'
       properties:
         accession:
           description: Public identifier of the file associated with the given information
@@ -36,18 +36,16 @@ components:
       title: FileAccession
       type: object
     FileInformation:
-      description: 'Public information container for files registered with the Internal
-        File
-
-        Registry service.'
+      description: Public information for files registered with the Internal File
+        Registry service.
       properties:
         accession:
           description: Public identifier of the file associated with the given information
           title: Accession
           type: string
         sha256_hash:
-          description: SHA256 hash of the unencrypted file content encoded as hexadecimal  values
-            as produced by hashlib.hexdigest().
+          description: SHA256 hash of the unencrypted file content encoded as hexadecimal
+            values as produced by hashlib.hexdigest().
           title: Sha256 Hash
           type: string
         size:
@@ -175,10 +173,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DatasetFileInformation'
-          description:
-          - File information consisting of file id, sha256 checksum of the unencrypted
-            file content and file size of the unencrypted file in bytes for all files
-            in a dataset.
+          description: File information for all files in a dataset.
         '404':
           content:
             application/json:
@@ -193,10 +188,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
-      summary: Return public file information for the given dataset id, i.e. public
-        accession.
+      summary: Return public file information for the given dataset id/accession.
       tags:
-      - DatsetInformationService
+      - DatasetInformationService
   /file_information/{file_id}:
     get:
       description: Retrieve and serve stored file information.
@@ -215,8 +209,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/FileInformation'
           description:
-          - File information consisting of file id, sha256 checksum of the unencryptedfile
-            content and file size of the unencrypted file in bytes.
+          - File information consisting of file id/accession, sha256 checksum of the
+            unencryptedfile content and file size of the unencrypted file in bytes.
         '404':
           content:
             application/json:
@@ -231,7 +225,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
-      summary: Return public file information for the given file id, i.e. public accession.
+      summary: Return public file information for the given file id/accession.
       tags:
       - DatasetInformationService
   /health:

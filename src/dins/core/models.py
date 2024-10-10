@@ -30,9 +30,7 @@ class FileAccession(BaseModel):
 
 
 class FileInformation(FileAccession):
-    """Public information container for files registered with the Internal File
-    Registry service.
-    """
+    """Public information for files registered with the Internal File Registry service."""
 
     size: PositiveInt = Field(
         default=..., description="Size of the unencrypted file in bytes."

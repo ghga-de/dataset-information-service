@@ -60,5 +60,5 @@ class DatasetFileInformation(BaseModel):
     file_information: list[FileAccession | FileInformation] = Field(
         default=...,
         description="Public information on all files belonging to a dataset or only the accession,"
-        "if no detailed information is available.",
+        " if no detailed information is available.",
     )

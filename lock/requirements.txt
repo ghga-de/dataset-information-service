@@ -107,9 +107,9 @@ fastapi==0.115.8 \
     # via
     #   -c lock/requirements-dev.txt
     #   ghga-service-commons
-ghga-event-schemas==4.0.0 \
-    --hash=sha256:c8c965f71c179c04f7f2a387959f3a27427be3b5d69f56d64bd5ff6fa0adbbf6 \
-    --hash=sha256:ebc79a46095df9a1ee9670be0adf2725e0ce7a35f4ae01a4494d6f6a498305fd
+ghga-event-schemas==4.1.0 \
+    --hash=sha256:4ed170215f7db058da5d9703465adbb10ac8b7118ae1413c450dab45e280a6fa \
+    --hash=sha256:87ccaed1fcc564d41c41352064b34911528ec31c12229801d4a8458ad833370a
     # via
     #   -c lock/requirements-dev.txt
     #   dins (pyproject.toml)
@@ -363,6 +363,7 @@ pydantic-settings==2.8.0 \
     --hash=sha256:c782c7dc3fb40e97b238e713c25d26f64314aece2e91abcff592fcac15f71820
     # via
     #   -c lock/requirements-dev.txt
+    #   ghga-event-schemas
     #   hexkit
 pygments==2.19.1 \
     --hash=sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f \

@@ -25,9 +25,9 @@ version = "1.1.0"
 description = "Dataset Information Service - Providing public metadata about files registered with the Internal File Registry"
 dependencies = [
     "typer >= 0.12",
-    "ghga-service-commons[api] >= 3.1",
-    "ghga-event-schemas >= 3.3",
-    "hexkit[akafka,s3,mongodb] >= 3.2",
+    "ghga-service-commons[api] ~= 3.1",
+    "ghga-event-schemas ~= 3.3",
+    "hexkit[akafka,s3,mongodb] ~= 3.2",
 ]
 
 [project.license]
@@ -66,6 +66,7 @@ fixable = [
     "UP",
     "I",
     "D",
+    "RUF022",
 ]
 ignore = [
     "E111",
@@ -85,6 +86,7 @@ ignore = [
     "D206",
     "D300",
     "UP040",
+    "PLC0206",
 ]
 select = [
     "C90",

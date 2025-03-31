@@ -5,7 +5,7 @@ description = "Dataset Information Service - Providing public metadata about fil
 dependencies = [
     "typer >= 0.12",
     "ghga-service-commons[api] >= 3.3",
-    "ghga-event-schemas >= 4.1",
+    "ghga-event-schemas >= 5.0",
     "hexkit[akafka,s3,mongodb] >= 4.1",
 ]
 

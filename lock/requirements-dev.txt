@@ -274,9 +274,9 @@ filelock==3.18.0 \
     --hash=sha256:adbc88eabb99d2fec8c9c1b229b171f18afa655400173ddc653d5d01501fb9f2 \
     --hash=sha256:c401f4f8377c4464e6db25fff06205fd89bdd83b65eb0488ed1b160f780e21de
     # via virtualenv
-ghga-event-schemas==6.0.0 \
-    --hash=sha256:1e3b4eadfe5968a4ad6500798aa17cef6380b507c5c00fa3fa38f60809ac63d1 \
-    --hash=sha256:4008e674f816200cb08642f0b31ee77ab2208fa01f1f662882838aa4bf73cce8
+ghga-event-schemas==5.0.0 \
+    --hash=sha256:0b0622d2f724c8cc0f6bcd45b551943dafb0ce9c890d2c89bd6a303b5c21f3b8 \
+    --hash=sha256:d6c9ace06548e63defcaf2374b5c9d2f2e9d2585ecd5bee92cd896104ba1c7e7
     # via dins (pyproject.toml)
 ghga-service-commons==4.0.0 \
     --hash=sha256:27ba3dfea1ad40398d64eb72a686952ac7e13ce01a9145018d3175fc056f61ce \

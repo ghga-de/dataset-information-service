@@ -52,17 +52,6 @@ attrs==25.3.0 \
     # via
     #   jsonschema
     #   referencing
-boto3==1.39.1 \
-    --hash=sha256:3f89d6f05ab7d3a6f6807b45e9456a1a0db53bb47b1758cf5e0a3479cdd6d734 \
-    --hash=sha256:beb945ec1ab4bb48d39640ce7d3054b7e4ab2020ef3259034c039195ae04b2f7
-    # via hexkit
-botocore==1.39.1 \
-    --hash=sha256:912d518ac3096460e54d2cf80899943a521a586fd5c075568e807f3c35623318 \
-    --hash=sha256:ac829b46b30bd837392c9792cdf63b44d290a4691c028b5e66ab471ced1b8305
-    # via
-    #   boto3
-    #   hexkit
-    #   s3transfer
 casefy==1.1.0 \
     --hash=sha256:849d6e0f80506fac70ab8e18999a4ca1eb7d8f70941682383d64aa22a7497f8f \
     --hash=sha256:a3dfcb14d85902d90702db1e9835760237f6a73ec0ae3b7e991ad767513a3cbc
@@ -475,12 +464,6 @@ iniconfig==2.1.0 \
     --hash=sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7 \
     --hash=sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760
     # via pytest
-jmespath==1.0.1 \
-    --hash=sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980 \
-    --hash=sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe
-    # via
-    #   boto3
-    #   botocore
 jsonschema==4.24.0 \
     --hash=sha256:0b4e8069eb12aedfa881333004bccaec24ecef5a8a6a4b6df142b2cc9599d196 \
     --hash=sha256:a462455f19f5faf404a7902952b6f0e3ce868f3ee09a359b05eca6673bd8412d
@@ -788,10 +771,6 @@ pytest-httpx==0.35.0 \
     --hash=sha256:d619ad5d2e67734abfbb224c3d9025d64795d4b8711116b1a13f72a251ae511f \
     --hash=sha256:ee11a00ffcea94a5cbff47af2114d34c5b231c326902458deed73f9c459fd744
     # via -r lock/requirements-dev-template.in
-python-dateutil==2.9.0.post0 \
-    --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
-    --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
-    # via botocore
 python-dotenv==1.1.1 \
     --hash=sha256:31f23644fe2602f88ff55e1f5c79ba497e01224ee7737937930c448e4d0e24dc \
     --hash=sha256:a8a6399716257f45be6a007360200409fce5cda2661e3dec71d23dc15f6189ab
@@ -1042,10 +1021,6 @@ ruff==0.12.1 \
     --hash=sha256:d973fa626d4c8267848755bd0414211a456e99e125dcab147f24daa9e991a245 \
     --hash=sha256:ed5af6aaaea20710e77698e2055b9ff9b3494891e1b24d26c07055459bb717e9
     # via -r lock/requirements-dev-template.in
-s3transfer==0.13.0 \
-    --hash=sha256:0148ef34d6dd964d0d8cf4311b2b21c474693e57c2e069ec708ce043d2b527be \
-    --hash=sha256:f5e6db74eb7776a37208001113ea7aa97695368242b364d73e91c981ac522177
-    # via boto3
 setuptools==80.9.0 \
     --hash=sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922 \
     --hash=sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c
@@ -1054,10 +1029,6 @@ shellingham==1.5.4 \
     --hash=sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686 \
     --hash=sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de
     # via typer
-six==1.17.0 \
-    --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
-    --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
-    # via python-dateutil
 snakeviz==2.2.2 \
     --hash=sha256:08028c6f8e34a032ff14757a38424770abb8662fb2818985aeea0d9bc13a7d83 \
     --hash=sha256:77e7b9c82f6152edc330040319b97612351cd9b48c706434c535c2df31d10ac5
@@ -1124,7 +1095,6 @@ urllib3==2.5.0 \
     --hash=sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc
     # via
     #   -r lock/requirements-dev-template.in
-    #   botocore
     #   docker
     #   requests
     #   testcontainers

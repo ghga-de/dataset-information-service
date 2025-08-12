@@ -200,18 +200,19 @@ fastapi==0.115.14 \
     # via
     #   -c lock/requirements-dev.txt
     #   ghga-service-commons
-ghga-event-schemas==5.0.0 \
-    --hash=sha256:0b0622d2f724c8cc0f6bcd45b551943dafb0ce9c890d2c89bd6a303b5c21f3b8 \
-    --hash=sha256:d6c9ace06548e63defcaf2374b5c9d2f2e9d2585ecd5bee92cd896104ba1c7e7
+ghga-event-schemas==10.0.0 \
+    --hash=sha256:997feaa5ed672b3eb85d82eb3fe4d37b31cd6f810d26efa65a6db53b33d6ce26 \
+    --hash=sha256:deb5260a902701cf53074e77d0ee78046d47b2f14fe8d4dae43c917ec5c6182f
     # via
     #   -c lock/requirements-dev.txt
     #   dins (pyproject.toml)
-ghga-service-commons==4.1.0 \
-    --hash=sha256:3601ca173818f87b73f9dcf55463fd7ec43d881a840e0ba8a1342f77e4127aad \
-    --hash=sha256:6c1b367d324ff23303e949d2af956eda007d24b4d7c811cfc8add1974a9034f0
+ghga-service-commons==5.0.0 \
+    --hash=sha256:9c772d7b7fb47d95e0a8c4522f2c79fc11bc3b8125090fe6b7cee86b1685f226 \
+    --hash=sha256:ffda793f369171d2b79c55fb5e7d218a455f964edacb5902bfa34f6c962f5532
     # via
     #   -c lock/requirements-dev.txt
     #   dins (pyproject.toml)
+    #   ghga-event-schemas
 h11==0.16.0 \
     --hash=sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1 \
     --hash=sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86
@@ -219,9 +220,9 @@ h11==0.16.0 \
     #   -c lock/requirements-dev.txt
     #   httpcore
     #   uvicorn
-hexkit==5.3.0 \
-    --hash=sha256:1a1ba924e0754b9b100fe1161105483e489344a0cf5e8ffc34ccd48737b44db3 \
-    --hash=sha256:ca36fcb12834c5b485edb068e3f654f1bc61ad35b5a7bb01b0da367e7ae5afea
+hexkit==7.0.0 \
+    --hash=sha256:9b99a5c73fd2a21ba436303e8bebf679d2d68ebeb2df9bff06c6222366a5e98f \
+    --hash=sha256:e7d954bad8510909d8e2c869347e77cfb29b48092e53678e34a9fa00a0b5091c
     # via
     #   -c lock/requirements-dev.txt
     #   dins (pyproject.toml)
@@ -324,12 +325,6 @@ mdurl==0.1.2 \
     # via
     #   -c lock/requirements-dev.txt
     #   markdown-it-py
-motor==3.7.1 \
-    --hash=sha256:27b4d46625c87928f331a6ca9d7c51c2f518ba0e270939d395bc1ddc89d64526 \
-    --hash=sha256:8a63b9049e38eeeb56b4fdd57c3312a6d1f25d01db717fe7d82222393c410298
-    # via
-    #   -c lock/requirements-dev.txt
-    #   hexkit
 opentelemetry-api==1.34.1 \
     --hash=sha256:64f0bd06d42824843731d05beea88d4d4b6ae59f9fe347ff7dfa2cc14233bbb3 \
     --hash=sha256:b7df4cb0830d5a6c29ad0c0691dbae874d8daefa934b8b1d642de48323d32a8c
@@ -528,7 +523,7 @@ pymongo==4.13.2 \
     --hash=sha256:f8057f9bc9c94a8fd54ee4f5e5106e445a8f406aff2df74746f21c8791ee2403
     # via
     #   -c lock/requirements-dev.txt
-    #   motor
+    #   hexkit
 python-dotenv==1.1.1 \
     --hash=sha256:31f23644fe2602f88ff55e1f5c79ba497e01224ee7737937930c448e4d0e24dc \
     --hash=sha256:a8a6399716257f45be6a007360200409fce5cda2661e3dec71d23dc15f6189ab

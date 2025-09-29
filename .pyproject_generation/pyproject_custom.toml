@@ -1,12 +1,12 @@
 [project]
 name = "dins"
-version = "4.0.0"
+version = "4.0.1"
 description = "Dataset Information Service - Providing public metadata about files registered with the Internal File Registry"
 dependencies = [
-    "typer >= 0.12",
-    "ghga-service-commons[api] >= 5.0",
-    "ghga-event-schemas ~= 10.0",
-    "hexkit[akafka,mongodb] >= 6.0",
+    "typer >= 0.19",
+    "ghga-service-commons[api] >= 5.1",
+    "ghga-event-schemas ~= 10.1",
+    "hexkit[akafka,mongodb] >= 7.1",
 ]
 
 [project.urls]

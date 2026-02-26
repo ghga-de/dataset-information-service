@@ -28,6 +28,7 @@ from hexkit.custom_types import Ascii, JsonObject
 from hexkit.protocols.eventsub import EventSubscriberProtocol
 from pydantic import UUID4
 
+from dins.constants import TRACER
 from dins.core.models import FileInternallyRegistered
 from dins.ports.inbound.information_service import InformationServicePort
 
@@ -97,6 +98,9 @@ class EventSubTranslator(EventSubscriberProtocol):
         else:
             raise RuntimeError(f"Unexpected event of type: {type_}")
 
+    @TRACER.start_as_current_span(
+        "EventSubTranslator._consume_file_internally_registered"
+    )
     async def _consume_file_internally_registered(self, *, payload: JsonObject):
         """
         Consume confirmation event that object data has been moved to permanent storage
@@ -111,6 +115,7 @@ class EventSubTranslator(EventSubscriberProtocol):
             file=validated_payload
         )
 
+    @TRACER.start_as_current_span("EventSubTranslator._consume_dataset_upserted")
     async def _consume_dataset_upserted(self, *, payload: JsonObject):
         """Consume newly registered dataset to store file ID mapping."""
         validated_payload = get_validated_payload(
@@ -122,6 +127,7 @@ class EventSubTranslator(EventSubscriberProtocol):
             dataset=validated_payload
         )
 
+    @TRACER.start_as_current_span("EventSubTranslator._consume_dataset_deleted")
     async def _consume_dataset_deleted(self, *, payload: JsonObject):
         """Delete information for registered dataset mappings when a dataset is deleted."""
         validated_payload = get_validated_payload(
@@ -133,6 +139,7 @@ class EventSubTranslator(EventSubscriberProtocol):
             dataset_id=validated_payload.accession
         )
 
+    @TRACER.start_as_current_span("EventSubTranslator._consume_file_deletion_requested")
     async def _consume_file_deletion_requested(self, *, payload: JsonObject):
         """Consume an event requesting that a file deletion."""
         validated_payload = get_validated_payload(

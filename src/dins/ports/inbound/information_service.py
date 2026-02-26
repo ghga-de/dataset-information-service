@@ -20,6 +20,7 @@ import ghga_event_schemas.pydantic_ as event_schemas
 
 from dins.core.models import (
     DatasetFileInformation,
+    FileAccessionMap,
     FileInformation,
     FileInternallyRegistered,
 )
@@ -78,3 +79,11 @@ class InformationServicePort(ABC):
     @abstractmethod
     async def serve_file_information(self, accession: str) -> FileInformation:
         """Retrieve stored public information for the given file accession to be served by the API."""
+
+    @abstractmethod
+    async def store_accession_map(self, *, accession_map: FileAccessionMap) -> None:
+        """Store an accession map in the database"""
+
+    @abstractmethod
+    async def delete_accession_map(self, *, accession: str) -> None:
+        """Delete the mapping for a given accession"""

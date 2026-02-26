@@ -15,15 +15,21 @@
 """Contains logic for public file information storage, retrieval and deletion."""
 
 import logging
+from contextlib import suppress
 
 import ghga_event_schemas.pydantic_ as event_schemas
 from hexkit.protocols.dao import ResourceNotFoundError
 
-from dins.adapters.outbound.dao import DatasetDaoPort, FileInformationDaoPort
+from dins.adapters.outbound.dao import (
+    DatasetDaoPort,
+    FileAccessionMapDaoPort,
+    FileInformationDaoPort,
+)
 from dins.core.models import (
     DatasetFileAccessions,
     DatasetFileInformation,
     FileAccession,
+    FileAccessionMap,
     FileInformation,
     FileInternallyRegistered,
 )
@@ -40,9 +46,11 @@ class InformationService(InformationServicePort):
     def __init__(
         self,
         *,
+        accession_map_dao: FileAccessionMapDaoPort,
         dataset_dao: DatasetDaoPort,
         file_information_dao: FileInformationDaoPort,
     ):
+        self._accession_map_dao = accession_map_dao
         self._dataset_dao = dataset_dao
         self._file_information_dao = file_information_dao
 
@@ -159,3 +167,18 @@ class InformationService(InformationServicePort):
             raise information_not_found from error
 
         return file_information
+
+    async def store_accession_map(self, *, accession_map: FileAccessionMap) -> None:
+        """Store an accession map in the database"""
+        await self._accession_map_dao.upsert(accession_map)
+        log.info(
+            "Upserted accession map for accession %s, file ID %s.",
+            accession_map.accession,
+            accession_map.file_id,
+        )
+
+    async def delete_accession_map(self, *, accession: str) -> None:
+        """Delete the mapping for a given accession"""
+        with suppress(ResourceNotFoundError):
+            await self._accession_map_dao.delete(accession)
+            log.info("Accession mapping deleted for accession %s", accession)

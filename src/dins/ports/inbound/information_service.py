@@ -17,6 +17,7 @@
 from abc import ABC, abstractmethod
 
 import ghga_event_schemas.pydantic_ as event_schemas
+from pydantic import UUID4
 
 from dins.core.models import (
     DatasetFileInformation,
@@ -36,6 +37,13 @@ class InformationServicePort(ABC):
 
         def __init__(self, *, accession: str):
             message = f"Mismatching information for the file with accession {accession} has already been registered."
+            super().__init__(message)
+
+    class MismatchingPendingFileInfoExists(RuntimeError):
+        """Raised when differing pending file info is already stored for the given file ID."""
+
+        def __init__(self, *, file_id: UUID4):
+            message = f"Mismatching pending file info for file ID {file_id} has already been stored."
             super().__init__(message)
 
     class DatasetNotFoundError(RuntimeError):
@@ -58,7 +66,7 @@ class InformationServicePort(ABC):
 
     @abstractmethod
     async def delete_file_information(self, accession: str):
-        """Handle deletion requests for information associated with the given accession."""
+        """Delete FileInformation for the given accession and clean up any related pending record."""
 
     @abstractmethod
     async def register_dataset_information(
@@ -67,7 +75,7 @@ class InformationServicePort(ABC):
         """Extract dataset to file accession mapping and store it."""
 
     @abstractmethod
-    async def register_file_information(self, file: FileInternallyRegistered):
+    async def register_file_information(self, file: FileInformation):
         """Store information for a file newly registered with the Internal File Registry."""
 
     @abstractmethod
@@ -81,8 +89,23 @@ class InformationServicePort(ABC):
         """Retrieve stored public information for the given file accession to be served by the API."""
 
     @abstractmethod
+    async def handle_file_internally_registered(
+        self, *, file: FileInternallyRegistered
+    ) -> None:
+        """Decide how to handle a new file registration.
+
+        If a corresponding FileAccessionMap already exists, merge and store FileInformation.
+        If not, temporarily store the essential fields as a PendingFileInfo instance.
+        """
+
+    @abstractmethod
     async def store_accession_map(self, *, accession_map: FileAccessionMap) -> None:
-        """Store an accession map in the database"""
+        """Upsert an accession map, then merge any waiting PendingFileInfo into FileInformation.
+
+        Rejects the update if a FileInformation record already exists for the accession.
+        No-ops on exact duplicates. After upserting, triggers a merge if a PendingFileInfo
+        record exists for the associated file_id.
+        """
 
     @abstractmethod
     async def delete_accession_map(self, *, accession: str) -> None:

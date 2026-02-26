@@ -113,7 +113,7 @@ class EventSubTranslator(EventSubscriberProtocol):
             schema=FileInternallyRegistered,
         )
 
-        await self._information_service.register_file_information(
+        await self._information_service.handle_file_internally_registered(
             file=validated_payload
         )
 

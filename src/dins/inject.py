@@ -43,11 +43,15 @@ async def prepare_core(*, config: Config) -> AsyncGenerator[InformationServicePo
         file_information_dao = await dao.get_file_information_dao(
             dao_factory=dao_factory
         )
+        pending_file_info_dao = await dao.get_pending_file_info_dao(
+            dao_factory=dao_factory
+        )
 
         yield InformationService(
             accession_map_dao=accession_map_dao,
             dataset_dao=dataset_dao,
             file_information_dao=file_information_dao,
+            pending_file_info_dao=pending_file_info_dao,
         )
 
 

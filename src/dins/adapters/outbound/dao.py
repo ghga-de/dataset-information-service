@@ -21,6 +21,7 @@ from dins.ports.inbound.dao import (
     DatasetDaoPort,
     FileAccessionMapDaoPort,
     FileInformationDaoPort,
+    PendingFileInfoDaoPort,
 )
 
 
@@ -42,7 +43,18 @@ async def get_file_accession_map_dao(
     return await dao_factory.get_dao(
         name="fileAccessionMaps",
         dto_model=models.FileAccessionMap,
-        id_field="accession",
+        id_field="file_id",  # lookups are mostly done by file_id
+    )
+
+
+async def get_pending_file_info_dao(
+    *, dao_factory: DaoFactoryProtocol
+) -> PendingFileInfoDaoPort:
+    """Setup the DAOs using the specified provider of the DaoFactoryProtocol."""
+    return await dao_factory.get_dao(
+        name="pendingFileInfo",
+        dto_model=models.PendingFileInfo,
+        id_field="file_id",
     )
 
 

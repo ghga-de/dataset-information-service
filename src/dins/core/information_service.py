@@ -24,6 +24,7 @@ from dins.adapters.outbound.dao import (
     DatasetDaoPort,
     FileAccessionMapDaoPort,
     FileInformationDaoPort,
+    PendingFileInfoDaoPort,
 )
 from dins.core.models import (
     DatasetFileAccessions,
@@ -49,10 +50,12 @@ class InformationService(InformationServicePort):
         accession_map_dao: FileAccessionMapDaoPort,
         dataset_dao: DatasetDaoPort,
         file_information_dao: FileInformationDaoPort,
+        pending_file_info_dao: PendingFileInfoDaoPort,
     ):
         self._accession_map_dao = accession_map_dao
         self._dataset_dao = dataset_dao
         self._file_information_dao = file_information_dao
+        self._pending_file_info_dao = pending_file_info_dao
 
     async def delete_dataset_information(self, dataset_id: str):
         """Delete dataset to file accession mapping when the corresponding dataset is deleted."""

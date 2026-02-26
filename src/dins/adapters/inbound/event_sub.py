@@ -190,7 +190,7 @@ class AccessionMapOutboxTranslator(DaoSubscriberProtocol[FileAccessionMap]):
             "Received upsertion outbox event for AccessionMap for accession %s.",
             resource_id,
         )
-        # await self._information_service.store_accession_map(accession_map=update)
+        await self._information_service.store_accession_map(accession_map=update)
 
     @TRACER.start_as_current_span("AccessionMapOutboxTranslator.deleted")
     async def deleted(self, resource_id: str) -> None:
@@ -199,4 +199,4 @@ class AccessionMapOutboxTranslator(DaoSubscriberProtocol[FileAccessionMap]):
             "Received deletion outbox event for accession %s",
             resource_id,
         )
-        # await self._information_service.delete_accession_map(accession=resource_id)
+        await self._information_service.delete_accession_map(accession=resource_id)

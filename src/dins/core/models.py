@@ -74,6 +74,17 @@ class DatasetFileInformation(BaseModel):
 Accession = Annotated[str, StringConstraints(pattern=r"^GHGA.+")]
 
 
+class FileAccessionMap(BaseModel):
+    """A class used to associate a file ID with an accession number"""
+
+    accession: Accession = Field(
+        default=..., description="The accession number assigned to this file."
+    )
+    file_id: UUID4 = Field(
+        default=..., description="Unique identifier for the file upload"
+    )
+
+
 class FileInternallyRegistered(BaseModel):
     """An event schema communicating that a file has been copied into permanent storage.
 

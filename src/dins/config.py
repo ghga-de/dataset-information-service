@@ -20,7 +20,7 @@ from hexkit.log import LoggingConfig
 from hexkit.opentelemetry import OpenTelemetryConfig
 from hexkit.providers.mongokafka import MongoKafkaConfig
 
-from dins.adapters.inbound.event_sub import EventSubTranslatorConfig
+from dins.adapters.inbound.event_sub import EventSubTranslatorConfig, OutboxSubConfig
 from dins.constants import SERVICE_NAME
 
 
@@ -28,6 +28,7 @@ from dins.constants import SERVICE_NAME
 class Config(
     ApiConfigBase,
     EventSubTranslatorConfig,
+    OutboxSubConfig,
     MongoKafkaConfig,
     LoggingConfig,
     OpenTelemetryConfig,

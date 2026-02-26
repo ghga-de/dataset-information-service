@@ -25,11 +25,13 @@ from ghga_event_schemas.configs import (
 )
 from ghga_event_schemas.validation import get_validated_payload
 from hexkit.custom_types import Ascii, JsonObject
+from hexkit.protocols.daosub import DaoSubscriberProtocol
 from hexkit.protocols.eventsub import EventSubscriberProtocol
-from pydantic import UUID4
+from pydantic import UUID4, Field
+from pydantic_settings import BaseSettings
 
 from dins.constants import TRACER
-from dins.core.models import FileInternallyRegistered
+from dins.core.models import FileAccessionMap, FileInternallyRegistered
 from dins.ports.inbound.information_service import InformationServicePort
 
 log = logging.getLogger(__name__)
@@ -149,3 +151,52 @@ class EventSubTranslator(EventSubscriberProtocol):
         await self._information_service.delete_file_information(
             accession=validated_payload.file_id
         )
+
+
+class OutboxSubConfig(BaseSettings):
+    """Config for listening to events carrying state updates for UploadBox objects
+
+    The event types are hardcoded by `hexkit`.
+    """
+
+    # TODO: Replace this with standardized config from ghga-event-schemas when available
+    accession_map_topic: str = Field(
+        default=...,
+        description="The name of the topic used for file accession map events",
+        examples=["accession-maps", "file-accession-maps"],
+    )
+
+
+class AccessionMapOutboxTranslator(DaoSubscriberProtocol[FileAccessionMap]):
+    """An outbox subscriber event translator for AccessionMap outbox events."""
+
+    event_topic: str
+    dto_model = FileAccessionMap
+
+    def __init__(
+        self,
+        *,
+        config: OutboxSubConfig,
+        information_service: InformationServicePort,
+    ):
+        """Initialize the outbox subscriber"""
+        self.event_topic = config.accession_map_topic
+        self._information_service = information_service
+
+    @TRACER.start_as_current_span("AccessionMapOutboxTranslator.changed")
+    async def changed(self, resource_id: str, update: FileAccessionMap) -> None:
+        """Process an AccessionMap event."""
+        log.info(
+            "Received upsertion outbox event for AccessionMap for accession %s.",
+            resource_id,
+        )
+        # await self._information_service.store_accession_map(accession_map=update)
+
+    @TRACER.start_as_current_span("AccessionMapOutboxTranslator.deleted")
+    async def deleted(self, resource_id: str) -> None:
+        """Delete the mapping for a given accession"""
+        log.info(
+            "Received deletion outbox event for accession %s",
+            resource_id,
+        )
+        # await self._information_service.delete_accession_map(accession=resource_id)

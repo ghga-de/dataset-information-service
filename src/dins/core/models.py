@@ -85,6 +85,19 @@ class FileAccessionMap(BaseModel):
     )
 
 
+class PendingFileInfo(BaseModel):
+    """Temporarily stored file registration data awaiting the corresponding accession map."""
+
+    file_id: UUID4 = Field(..., description="Unique identifier for the file upload")
+    decrypted_size: int = Field(..., description="The size of the unencrypted file")
+    decrypted_sha256: str = Field(
+        ..., description="SHA-256 checksum of the entire unencrypted file content"
+    )
+    storage_alias: str = Field(
+        ..., description="The storage alias of the Data Hub housing the file"
+    )
+
+
 class FileInternallyRegistered(BaseModel):
     """An event schema communicating that a file has been copied into permanent storage.
 
@@ -93,9 +106,6 @@ class FileInternallyRegistered(BaseModel):
     """
 
     file_id: UUID4 = Field(..., description="Unique identifier for the file upload")
-    accession: Accession = Field(
-        default=..., description="The accession number assigned to this file."
-    )
     archive_date: UTCDatetime = Field(
         ...,
         description="The date and time when this file was archived.",

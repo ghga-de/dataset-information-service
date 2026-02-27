@@ -15,6 +15,7 @@
 """DAO translators for database access."""
 
 from hexkit.protocols.dao import DaoFactoryProtocol
+from hexkit.providers.mongodb import MongoDbIndex
 
 from dins.core import models
 from dins.ports.inbound.dao import (
@@ -43,7 +44,8 @@ async def get_file_accession_map_dao(
     return await dao_factory.get_dao(
         name="fileAccessionMaps",
         dto_model=models.FileAccessionMap,
-        id_field="file_id",  # lookups are mostly done by file_id
+        id_field="accession",
+        indexes=[MongoDbIndex(fields="file_id", properties={"unique": True})],
     )
 
 

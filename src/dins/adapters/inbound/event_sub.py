@@ -31,7 +31,11 @@ from pydantic import UUID4, Field
 from pydantic_settings import BaseSettings
 
 from dins.constants import TRACER
-from dins.core.models import FileAccessionMap, FileInternallyRegistered
+from dins.core.models import (
+    FileAccessionMap,
+    FileDeletionRequested,
+    FileInternallyRegistered,
+)
 from dins.ports.inbound.information_service import InformationServicePort
 
 log = logging.getLogger(__name__)
@@ -146,10 +150,10 @@ class EventSubTranslator(EventSubscriberProtocol):
         """Consume an event requesting that a file deletion."""
         validated_payload = get_validated_payload(
             payload=payload,
-            schema=event_schemas.FileDeletionRequested,
+            schema=FileDeletionRequested,
         )
         await self._information_service.delete_file_information(
-            accession=validated_payload.file_id
+            file_id=validated_payload.file_id
         )
 
 

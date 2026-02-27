@@ -137,3 +137,25 @@ class FileInternallyRegistered(BaseModel):
         default=...,
         description="The number of bytes in each file part (last part is likely smaller)",
     )
+
+
+class FileDeletionRequested(BaseModel):
+    """
+    This event is emitted when a request to delete a certain file from the file
+    backend has been made.
+
+    This local definition will be replaced by the `ghga-event-schemas` definition
+    once implemented there.
+    """
+
+    file_id: UUID4 = Field(..., description="Unique identifier for the file")
+
+
+class FileDeletionSuccess(FileDeletionRequested):
+    """
+    This event is emitted when a service has deleted a file from its database as well
+    as the S3 buckets it controls.
+
+    This local definition will be replaced by the `ghga-event-schemas` definition
+    once implemented there.
+    """

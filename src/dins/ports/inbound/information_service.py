@@ -24,6 +24,7 @@ from dins.core.models import (
     FileAccessionMap,
     FileInformation,
     FileInternallyRegistered,
+    PendingFileInfo,
 )
 
 
@@ -32,8 +33,9 @@ class InformationServicePort(ABC):
     metadata for files registered with the Internal File Registry service.
     """
 
+    # TODO: Re-evaluate errors for naming, doc strings, text, params, etc.
     class MismatchingFileInformationAlreadyRegistered(RuntimeError):
-        """Raised when the given file ID is already registered but the info doesn't match."""
+        """Raised when the given accession is already registered but the info doesn't match."""
 
         def __init__(self, *, accession: str):
             message = f"Mismatching information for the file with accession {accession} has already been registered."
@@ -61,32 +63,22 @@ class InformationServicePort(ABC):
             super().__init__(message)
 
     @abstractmethod
-    async def delete_dataset_information(self, dataset_id: str):
-        """Delete dataset to file accession mapping when the corresponding dataset is deleted."""
-
-    @abstractmethod
-    async def delete_file_information(self, accession: str):
-        """Delete FileInformation for the given accession and clean up any related pending record."""
-
-    @abstractmethod
     async def register_dataset_information(
         self, dataset: event_schemas.MetadataDatasetOverview
     ):
         """Extract dataset to file accession mapping and store it."""
 
     @abstractmethod
-    async def register_file_information(self, file: FileInformation):
+    async def delete_dataset_information(self, dataset_id: str):
+        """Delete dataset to file accession mapping when the corresponding dataset is deleted."""
+
+    @abstractmethod
+    async def register_file_information(self, file_information: FileInformation):
         """Store information for a file newly registered with the Internal File Registry."""
 
     @abstractmethod
-    async def serve_dataset_information(
-        self, dataset_id: str
-    ) -> DatasetFileInformation:
-        """Retrieve stored public information for the given dataset ID to be served by the API."""
-
-    @abstractmethod
-    async def serve_file_information(self, accession: str) -> FileInformation:
-        """Retrieve stored public information for the given file accession to be served by the API."""
+    async def delete_file_information(self, file_id: UUID4):
+        """Delete FileInformation for the given accession and clean up any related pending record."""
 
     @abstractmethod
     async def handle_file_internally_registered(
@@ -96,6 +88,13 @@ class InformationServicePort(ABC):
 
         If a corresponding FileAccessionMap already exists, merge and store FileInformation.
         If not, temporarily store the essential fields as a PendingFileInfo instance.
+        """
+
+    @abstractmethod
+    async def store_pending_file_info(self, *, pending: PendingFileInfo) -> None:
+        """Store a PendingFileInfo record.
+
+        No-ops on exact duplicates. Logs an error if differing data is already stored.
         """
 
     @abstractmethod
@@ -110,3 +109,13 @@ class InformationServicePort(ABC):
     @abstractmethod
     async def delete_accession_map(self, *, accession: str) -> None:
         """Delete the mapping for a given accession"""
+
+    @abstractmethod
+    async def serve_dataset_information(
+        self, dataset_id: str
+    ) -> DatasetFileInformation:
+        """Retrieve stored public information for the given dataset ID to be served by the API."""
+
+    @abstractmethod
+    async def serve_file_information(self, accession: str) -> FileInformation:
+        """Retrieve stored public information for the given file accession to be served by the API."""

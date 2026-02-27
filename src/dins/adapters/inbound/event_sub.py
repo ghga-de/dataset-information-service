@@ -46,12 +46,12 @@ class EventSubTranslatorConfig(
     FileInternallyRegisteredEventsConfig,
     FileDeletionRequestEventsConfig,
 ):
-    """Config for publishing file upload-related events."""
+    """Config for the event subscriber"""
 
 
 class EventSubTranslator(EventSubscriberProtocol):
     """A triple hexagonal translator compatible with the EventSubscriberProtocol that
-    is used to received events relevant for file uploads.
+    is used to receive events relevant for file uploads.
     """
 
     def __init__(
@@ -147,7 +147,7 @@ class EventSubTranslator(EventSubscriberProtocol):
 
     @TRACER.start_as_current_span("EventSubTranslator._consume_file_deletion_requested")
     async def _consume_file_deletion_requested(self, *, payload: JsonObject):
-        """Consume an event requesting that a file deletion."""
+        """Consume an event requesting a file deletion."""
         validated_payload = get_validated_payload(
             payload=payload,
             schema=FileDeletionRequested,
@@ -158,7 +158,7 @@ class EventSubTranslator(EventSubscriberProtocol):
 
 
 class OutboxSubConfig(BaseSettings):
-    """Config for listening to events carrying state updates for UploadBox objects
+    """Config for listening to events carrying state updates for file accession maps.
 
     The event types are hardcoded by `hexkit`.
     """

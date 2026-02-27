@@ -215,9 +215,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileInformation'
-          description:
-          - File information consisting of file accession, sha256 checksum of the
-            unencryptedfile content and file size of the unencrypted file in bytes.
+          description: File information consisting of file accession, sha256 checksum
+            of the unencrypted file content and file size of the unencrypted file
+            in bytes.
         '404':
           content:
             application/json:

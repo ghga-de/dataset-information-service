@@ -71,16 +71,18 @@ class InformationService(InformationServicePort):
         log.info("Successfully deleted mapping for dataset with id %s.", dataset_id)
 
     async def delete_file_information(self, file_id: UUID4):
-        """Delete FileInformation for the given accession and clean up any related pending record.
+        """Delete FileInformation for the given file ID.
 
-        If no FileInformation exists for the accession, logs and returns early.
+        If no such FileInformation exists, logs and returns early.
         """
         try:
             accession_map = await self._accession_map_dao.find_one(
                 mapping={"file_id": file_id}
             )
         except NoHitsFoundError:
-            log.info("No accession map found for %s, presumed already deleted.")
+            log.info(
+                "No accession map found for %s, presumed already deleted.", file_id
+            )
             return
 
         try:
@@ -98,7 +100,7 @@ class InformationService(InformationServicePort):
     async def register_dataset_information(
         self, dataset: event_schemas.MetadataDatasetOverview
     ):
-        """Extract dataset to file ID mapping and store it."""
+        """Extract dataset to file accession mapping and store it."""
         dataset_accession = dataset.accession
         file_accessions = [file.accession for file in dataset.files]
 
@@ -243,18 +245,10 @@ class InformationService(InformationServicePort):
         Otherwise upserts freely, then checks for a pending file info to merge.
         """
         accession = accession_map.accession
-        # Upsert the accession map if it doesn't already exist
         map_exists = False
-        try:
+        with suppress(ResourceNotFoundError):
             existing_map = await self._accession_map_dao.get_by_id(accession)
             map_exists = True
-        except ResourceNotFoundError:
-            await self._accession_map_dao.insert(accession_map)
-            log.info(
-                "Upserted accession map for accession %s, file ID %s.",
-                accession_map.accession,
-                accession_map.file_id,
-            )
 
         # Handle potential inconsistencies
         if map_exists and accession_map.model_dump() != existing_map.model_dump():
@@ -278,6 +272,11 @@ class InformationService(InformationServicePort):
         # If it already exists and differs, this is fine as long as no file is
         #  already registered
         await self._accession_map_dao.upsert(accession_map)
+        log.info(
+            "Upserted accession map for accession %s, file ID %s.",
+            accession_map.accession,
+            accession_map.file_id,
+        )
 
         # Now check to see if the corresponding PendingFileInfo is already in the DB.
         #  We do this even if the mapping is a duplicate, as it provides a path for
@@ -299,7 +298,7 @@ class InformationService(InformationServicePort):
             storage_alias=pending.storage_alias,
         )
         log.debug(
-            "Merged accession map for %a with file info for %s, registering FileInformation.",
+            "Merged accession map for %s with file info for %s, registering FileInformation.",
             accession,
             accession_map.file_id,
         )

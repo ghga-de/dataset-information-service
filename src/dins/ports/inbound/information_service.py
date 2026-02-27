@@ -49,7 +49,7 @@ class InformationServicePort(ABC):
             super().__init__(message)
 
     class DatasetNotFoundError(RuntimeError):
-        """Raised when information for a given file ID is not registered."""
+        """Raised when information for a given dataset accession is not registered."""
 
         def __init__(self, *, dataset_accession: str):
             message = f"Mapping for the dataset with ID {dataset_accession} is not registered."
@@ -78,7 +78,10 @@ class InformationServicePort(ABC):
 
     @abstractmethod
     async def delete_file_information(self, file_id: UUID4):
-        """Delete FileInformation for the given accession and clean up any related pending record."""
+        """Delete FileInformation for the given file ID.
+
+        If no such FileInformation exists, logs and returns early.
+        """
 
     @abstractmethod
     async def handle_file_internally_registered(

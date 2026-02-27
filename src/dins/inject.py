@@ -115,7 +115,7 @@ async def prepare_rest_app(
     config: Config,
     information_service_override: InformationServicePort | None = None,
 ) -> AsyncGenerator[FastAPI]:
-    """Construct and initialize an REST API app along with all its dependencies.
+    """Construct and initialize a REST API app along with all its dependencies.
     By default, the core dependencies are automatically prepared but you can also
     provide them using the information_service_override parameter.
     """

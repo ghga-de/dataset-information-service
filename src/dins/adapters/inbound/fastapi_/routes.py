@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""FastAPI routes for S3 upload metadata ingest"""
+"""FastAPI routes for serving information about datasets and files"""
 
 from typing import Annotated
 
@@ -38,8 +38,8 @@ RESPONSES = {
     },
     "fileInformation": {
         "description": (
-            "File information consisting of file accession, sha256 checksum of the unencrypted"
-            "file content and file size of the unencrypted file in bytes.",
+            "File information consisting of file accession, sha256 checksum of the "
+            + "unencrypted file content and file size of the unencrypted file in bytes."
         ),
         "model": models.FileInformation,
     },

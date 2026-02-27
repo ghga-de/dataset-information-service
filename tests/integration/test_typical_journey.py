@@ -16,27 +16,28 @@
 """Tests typical user journeys"""
 
 import logging
-from uuid import UUID
 
 import ghga_event_schemas.pydantic_ as event_schemas
 import pytest
 from hexkit.protocols.dao import ResourceNotFoundError
-from hexkit.utils import now_utc_ms_prec
 
 from dins.core import models
 from tests.fixtures.joint import JointFixture
+from tests.fixtures.utils import (
+    ACCESSION1,
+    ACCESSION2,
+    ACCESSION3,
+    DECRYPTED_SHA256,
+    DECRYPTED_SIZE,
+    FILE_ID_1,
+    FILE_ID_2,
+    FILE_ID_3,
+    make_accession_map,
+    make_file_internally_registered,
+    make_metadata_dataset_overview,
+)
 
 pytestmark = pytest.mark.asyncio
-
-FILE_ID_1 = UUID("6157d248-4baa-4f86-b1b9-b5476a55c12a")
-FILE_ID_2 = UUID("753d3b20-eb18-4379-9874-1171cfa24831")
-FILE_ID_3 = UUID("8eba8ab1-6e86-4d65-9c45-1586f73950fa")
-ACCESSION1 = "GHGA001"
-ACCESSION2 = "GHGA002"
-ACCESSION3 = "GHGA003"
-DECRYPTED_SHA256 = "fake-checksum"
-DECRYPTED_SIZE = 12345678
-
 
 FILE_1 = event_schemas.MetadataDatasetFile(
     accession=ACCESSION1, description="Test File 1", file_extension=".zip"
@@ -48,51 +49,38 @@ FILE_3 = event_schemas.MetadataDatasetFile(
     accession=ACCESSION3, description="Test File 3", file_extension=".zip"
 )
 
-
-INCOMING_DATASET_PAYLOAD = event_schemas.MetadataDatasetOverview(
+INCOMING_DATASET_PAYLOAD = make_metadata_dataset_overview(
     accession="GHGAtest-dataset",
-    description="Test dataset",
-    title="Dataset for testing",
-    stage=event_schemas.MetadataDatasetStage.UPLOAD,
     files=[FILE_1, FILE_2],
-    dac_alias="DAC 1",
-    dac_email="test@test.com",
 )
 
-UPDATE_DATASET_PAYLOAD = INCOMING_DATASET_PAYLOAD.model_copy(
-    update={"files": [FILE_1, FILE_2, FILE_3]}
+UPDATE_DATASET_PAYLOAD = make_metadata_dataset_overview(
+    accession="GHGAtest-dataset",
+    files=[FILE_1, FILE_2, FILE_3],
 )
 
-
-INCOMING_FILE_PAYLOAD = models.FileInternallyRegistered(
+INCOMING_FILE_PAYLOAD = make_file_internally_registered(
     file_id=FILE_ID_1,
-    accession=ACCESSION1,
-    archive_date=now_utc_ms_prec(),
     storage_alias="test-node",
-    bucket_id="permanent",
-    secret_id="some-secret",
-    decrypted_size=DECRYPTED_SIZE,
-    encrypted_size=123456789,
     decrypted_sha256=DECRYPTED_SHA256,
-    encrypted_parts_md5=["some", "checksum"],
-    encrypted_parts_sha256=["some", "checksum"],
-    part_size=10000,
+    decrypted_size=DECRYPTED_SIZE,
+)
+INCOMING_FILE_PAYLOAD_2 = make_file_internally_registered(
+    file_id=FILE_ID_2,
+    storage_alias="test-node-2",
+    decrypted_sha256=DECRYPTED_SHA256,
+    decrypted_size=DECRYPTED_SIZE,
+)
+INCOMING_FILE_PAYLOAD_3 = make_file_internally_registered(
+    file_id=FILE_ID_3,
+    storage_alias="test-node-3",
+    decrypted_sha256=DECRYPTED_SHA256,
+    decrypted_size=DECRYPTED_SIZE,
 )
 
-INCOMING_FILE_PAYLOAD_2 = INCOMING_FILE_PAYLOAD.model_copy(
-    update={
-        "file_id": FILE_ID_2,
-        "accession": ACCESSION2,
-        "storage_alias": "test-node-2",
-    }
-)
-INCOMING_FILE_PAYLOAD_3 = INCOMING_FILE_PAYLOAD.model_copy(
-    update={
-        "file_id": FILE_ID_3,
-        "accession": ACCESSION3,
-        "storage_alias": "test-node-3",
-    }
-)
+ACCESSION_MAP_1 = make_accession_map(accession=ACCESSION1, file_id=FILE_ID_1)
+ACCESSION_MAP_2 = make_accession_map(accession=ACCESSION2, file_id=FILE_ID_2)
+ACCESSION_MAP_3 = make_accession_map(accession=ACCESSION3, file_id=FILE_ID_3)
 
 FILE_INFORMATION = models.FileInformation(
     accession=ACCESSION1,
@@ -104,9 +92,7 @@ FILE_INFORMATION = models.FileInformation(
 
 async def test_file_information_journey(joint_fixture: JointFixture, caplog):
     """Simulates a typical file information API journey."""
-    # Test population path
-    accession = INCOMING_FILE_PAYLOAD.accession
-
+    # Publish FileInternallyRegistered - no accession map yet, so stores PendingFileInfo
     await joint_fixture.kafka.publish_event(
         payload=INCOMING_FILE_PAYLOAD.model_dump(),
         type_=joint_fixture.config.file_internally_registered_type,
@@ -114,11 +100,16 @@ async def test_file_information_journey(joint_fixture: JointFixture, caplog):
     )
     await joint_fixture.event_subscriber.run(forever=False)
 
-    file_information = await joint_fixture.file_information_dao.get_by_id(accession)
+    # Store the accession map - merges PendingFileInfo into FileInformation
+    await joint_fixture.information_service.store_accession_map(
+        accession_map=ACCESSION_MAP_1
+    )
+
+    file_information = await joint_fixture.file_information_dao.get_by_id(ACCESSION1)
     assert file_information == FILE_INFORMATION
 
     # Test reregistration of identical content
-    expected_message = f"Found existing information for file {accession}."
+    expected_message = f"Found existing information for file {ACCESSION1}."
 
     caplog.clear()
     with caplog.at_level(level=logging.DEBUG, logger="dins.core.information_service"):
@@ -133,7 +124,7 @@ async def test_file_information_journey(joint_fixture: JointFixture, caplog):
 
     # Test reregistration of mismatching content
     mismatch_message = (
-        f"Mismatching information for the file with accession {accession} has already"
+        f"Mismatching information for the file with accession {ACCESSION1} has already"
         + " been registered."
     )
     mismatch_mock = INCOMING_FILE_PAYLOAD.model_copy(
@@ -148,13 +139,18 @@ async def test_file_information_journey(joint_fixture: JointFixture, caplog):
             topic=joint_fixture.config.file_internally_registered_topic,
         )
         await joint_fixture.event_subscriber.run(forever=False)
-        assert len(caplog.messages) == 2
-        assert expected_message in caplog.messages
-        assert mismatch_message in caplog.messages
+        service_messages = [
+            r.getMessage()
+            for r in caplog.records
+            if r.name == "dins.core.information_service"
+        ]
+        assert len(service_messages) == 2
+        assert expected_message in service_messages
+        assert mismatch_message in service_messages
 
     # Test requesting existing file information
     base_url = f"{joint_fixture.config.api_root_path}/file_information"
-    url = f"{base_url}/{accession}"
+    url = f"{base_url}/{ACCESSION1}"
     response = await joint_fixture.rest_client.get(url)
     assert response.status_code == 200
     assert models.FileInformation(**response.json()) == FILE_INFORMATION
@@ -164,8 +160,8 @@ async def test_file_information_journey(joint_fixture: JointFixture, caplog):
     response = await joint_fixture.rest_client.get(url)
     assert response.status_code == 404
 
-    # request deletion
-    deletion_requested = event_schemas.FileDeletionRequested(file_id=ACCESSION1)
+    # Request deletion - file_id is the UUID, not the accession
+    deletion_requested = models.FileDeletionRequested(file_id=FILE_ID_1)
 
     await joint_fixture.kafka.publish_event(
         payload=deletion_requested.model_dump(),
@@ -176,7 +172,7 @@ async def test_file_information_journey(joint_fixture: JointFixture, caplog):
 
     # assert information is gone
     with pytest.raises(ResourceNotFoundError):
-        file_information = await joint_fixture.file_information_dao.get_by_id(accession)
+        await joint_fixture.file_information_dao.get_by_id(ACCESSION1)
 
 
 async def test_dataset_information_journey(
@@ -193,7 +189,7 @@ async def test_dataset_information_journey(
     await joint_fixture.event_subscriber.run(forever=False)
 
     dataset_accession = INCOMING_DATASET_PAYLOAD.accession
-    dataset = await joint_fixture.dataset_information_dao.get_by_id(dataset_accession)
+    dataset = await joint_fixture.dataset_dao.get_by_id(dataset_accession)
     assert dataset.accession == dataset_accession
     for file in INCOMING_DATASET_PAYLOAD.files:
         assert file.accession in dataset.file_accessions
@@ -210,7 +206,7 @@ async def test_dataset_information_journey(
         {"accession": ACCESSION2},
     ]
 
-    # register actual file information
+    # Register files internally - stores PendingFileInfo, no FileInformation yet
     for file_payload in (
         INCOMING_FILE_PAYLOAD,
         INCOMING_FILE_PAYLOAD_2,
@@ -222,6 +218,12 @@ async def test_dataset_information_journey(
             topic=joint_fixture.config.file_internally_registered_topic,
         )
         await joint_fixture.event_subscriber.run(forever=False)
+
+    # Store accession maps - merges each PendingFileInfo into FileInformation
+    for accession_map in (ACCESSION_MAP_1, ACCESSION_MAP_2, ACCESSION_MAP_3):
+        await joint_fixture.information_service.store_accession_map(
+            accession_map=accession_map
+        )
 
     # check again to verify that correct file information is returned now
     response = await joint_fixture.rest_client.get(url)
@@ -281,9 +283,9 @@ async def test_dataset_information_journey(
         },
     ]
 
-    # delete file information
-    for accession in (ACCESSION1, ACCESSION2, ACCESSION3):
-        deletion_requested = event_schemas.FileDeletionRequested(file_id=accession)
+    # delete file information - use file_id (UUID), not accession
+    for file_id in (FILE_ID_1, FILE_ID_2, FILE_ID_3):
+        deletion_requested = models.FileDeletionRequested(file_id=file_id)
 
         await joint_fixture.kafka.publish_event(
             payload=deletion_requested.model_dump(),
@@ -317,3 +319,6 @@ async def test_dataset_information_journey(
     # check endpoint response for a final time
     response = await joint_fixture.rest_client.get(url)
     assert response.status_code == 404
+
+
+# TODO: Add test for accession map that verifies the unique index works

@@ -20,7 +20,7 @@ from pydantic import BaseModel
 
 
 class HttpDatasetNotFoundError(HttpCustomExceptionBase):
-    """Raised when a file with given ID could not be found."""
+    """Raised when a Dataset with the given ID could not be found."""
 
     exception_id = "datasetNotFound"
 
@@ -39,7 +39,7 @@ class HttpDatasetNotFoundError(HttpCustomExceptionBase):
 
 
 class HttpInformationNotFoundError(HttpCustomExceptionBase):
-    """Raised when a file with given ID could not be found."""
+    """Raised when a file with given accession could not be found."""
 
     exception_id = "informationNotFound"
 

@@ -88,13 +88,18 @@ class FileAccessionMap(BaseModel):
 class PendingFileInfo(BaseModel):
     """Temporarily stored file registration data awaiting the corresponding accession map."""
 
-    file_id: UUID4 = Field(..., description="Unique identifier for the file upload")
-    decrypted_size: int = Field(..., description="The size of the unencrypted file")
+    file_id: UUID4 = Field(
+        default=..., description="Unique identifier for the file upload"
+    )
+    decrypted_size: int = Field(
+        default=..., description="The size of the unencrypted file"
+    )
     decrypted_sha256: str = Field(
-        ..., description="SHA-256 checksum of the entire unencrypted file content"
+        default=...,
+        description="SHA-256 checksum of the entire unencrypted file content",
     )
     storage_alias: str = Field(
-        ..., description="The storage alias of the Data Hub housing the file"
+        default=..., description="The storage alias of the Data Hub housing the file"
     )
 
 
@@ -105,21 +110,25 @@ class FileInternallyRegistered(BaseModel):
     once implemented there.
     """
 
-    file_id: UUID4 = Field(..., description="Unique identifier for the file upload")
+    file_id: UUID4 = Field(
+        default=..., description="Unique identifier for the file upload"
+    )
     archive_date: UTCDatetime = Field(
-        ...,
+        default=...,
         description="The date and time when this file was archived.",
     )
     storage_alias: str = Field(
         default=..., description="The storage alias of the Data Hub housing the file"
     )
     bucket_id: str = Field(
-        ..., description="The ID/name of the S3 bucket used to store the file."
+        default=..., description="The ID/name of the S3 bucket used to store the file."
     )
     secret_id: str = Field(
         default=..., description="The ID of the file decryption secret."
     )
-    decrypted_size: int = Field(..., description="The size of the unencrypted file")
+    decrypted_size: int = Field(
+        default=..., description="The size of the unencrypted file"
+    )
     encrypted_size: int = Field(
         default=..., description="The encrypted size of the file before re-encryption"
     )
@@ -148,7 +157,7 @@ class FileDeletionRequested(BaseModel):
     once implemented there.
     """
 
-    file_id: UUID4 = Field(..., description="Unique identifier for the file")
+    file_id: UUID4 = Field(default=..., description="Unique identifier for the file")
 
 
 class FileDeletionSuccess(FileDeletionRequested):

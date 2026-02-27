@@ -114,7 +114,6 @@ class InformationService(InformationServicePort):
         """Store information for a file newly registered with the Internal File Registry."""
         accession = file_information.accession
 
-        # inverted logic due to raw pymongo exception exposed by hexkit
         try:
             existing_information = await self._file_information_dao.get_by_id(accession)
         except ResourceNotFoundError:
@@ -122,7 +121,7 @@ class InformationService(InformationServicePort):
             log.debug("Successfully inserted information for file %s.", accession)
         else:
             log.debug("Found existing information for file %s.", accession)
-            # Only log if information to be inserted is a mismatch
+            # Log and raise if information to be inserted is a mismatch
             if existing_information.model_dump() != file_information.model_dump():
                 information_exists = self.MismatchingFileInformationAlreadyRegistered(
                     accession=accession
@@ -142,12 +141,12 @@ class InformationService(InformationServicePort):
             log.debug(dataset_not_found)
             raise dataset_not_found from error
 
-        file_ids_mapping = {"accession": {"$in": dataset.file_accessions}}
+        file_accessions_mapping = {"accession": {"$in": dataset.file_accessions}}
 
         file_informations = [
             single_file_information
             async for single_file_information in self._file_information_dao.find_all(
-                mapping=file_ids_mapping
+                mapping=file_accessions_mapping
             )
         ]
 
@@ -323,4 +322,4 @@ class InformationService(InformationServicePort):
         except ResourceNotFoundError:
             log.info("Accession map for accession %s does not exist.", accession)
         else:
-            log.info("Accession mapping deleted for accession %s", accession)
+            log.info("Accession mapping deleted for accession %s.", accession)

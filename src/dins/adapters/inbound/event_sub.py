@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Receive events informing about files that are expected to be uploaded."""
+"""Receive events related to Datasets and recently registered File Uploads"""
 
 import logging
 
@@ -123,7 +123,7 @@ class EventSubTranslator(EventSubscriberProtocol):
 
     @TRACER.start_as_current_span("EventSubTranslator._consume_dataset_upserted")
     async def _consume_dataset_upserted(self, *, payload: JsonObject):
-        """Consume newly registered dataset to store file ID mapping."""
+        """Consume newly registered dataset to store file accession mapping."""
         validated_payload = get_validated_payload(
             payload=payload,
             schema=event_schemas.MetadataDatasetOverview,

@@ -65,19 +65,21 @@ class InformationServicePort(ABC):
     @abstractmethod
     async def register_dataset_information(
         self, dataset: event_schemas.MetadataDatasetOverview
-    ):
+    ) -> None:
         """Extract dataset to file accession mapping and store it."""
 
     @abstractmethod
-    async def delete_dataset_information(self, dataset_id: str):
+    async def delete_dataset_information(self, dataset_id: str) -> None:
         """Delete dataset to file accession mapping when the corresponding dataset is deleted."""
 
     @abstractmethod
-    async def register_file_information(self, file_information: FileInformation):
+    async def register_file_information(
+        self, file_information: FileInformation
+    ) -> None:
         """Store information for a file newly registered with the Internal File Registry."""
 
     @abstractmethod
-    async def delete_file_information(self, file_id: UUID4):
+    async def delete_file_information(self, file_id: UUID4) -> None:
         """Delete FileInformation for the given file ID.
 
         If no such FileInformation exists, logs and returns early.

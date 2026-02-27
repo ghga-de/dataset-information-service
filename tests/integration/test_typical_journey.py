@@ -21,6 +21,7 @@ import ghga_event_schemas.pydantic_ as event_schemas
 import pytest
 from hexkit.protocols.dao import ResourceNotFoundError
 
+from dins.adapters.outbound.dao import get_file_accession_map_dao
 from dins.core import models
 from tests.fixtures.joint import JointFixture
 from tests.fixtures.utils import (
@@ -321,4 +322,64 @@ async def test_dataset_information_journey(
     assert response.status_code == 404
 
 
-# TODO: Add test for accession map that verifies the unique index works
+async def test_accession_map_unique_file_id_index(joint_fixture: JointFixture):
+    """Verifies that the unique index on 'file_id' in the accession map collection works.
+
+    Two different accessions must not be mapped to the same file_id. The second
+    event should fail due to the unique index and be sent to the DLQ.
+    """
+    # Publish and consume the first accession map event - should succeed
+    await joint_fixture.kafka.publish_event(
+        payload=ACCESSION_MAP_1.model_dump(),
+        type_="upserted",
+        topic=joint_fixture.config.accession_map_topic,
+        key=ACCESSION1,
+    )
+    await joint_fixture.event_subscriber.run(forever=False)
+
+    # Publish a second accession map with the same file_id but a different accession.
+    # The unique index on file_id should reject the insert and route the event to the DLQ.
+    duplicate_file_id_map = make_accession_map(accession=ACCESSION2, file_id=FILE_ID_1)
+    async with joint_fixture.kafka.record_events(
+        in_topic=joint_fixture.config.kafka_dlq_topic
+    ) as recorder:
+        await joint_fixture.kafka.publish_event(
+            payload=duplicate_file_id_map.model_dump(),
+            type_="upserted",
+            topic=joint_fixture.config.accession_map_topic,
+            key=ACCESSION2,
+        )
+        await joint_fixture.event_subscriber.run(forever=False)
+
+    assert len(recorder.recorded_events) == 1
+
+
+async def test_accession_map_deletion_event(joint_fixture: JointFixture):
+    """Check that the accession map outbox subscriber will process a deletion event."""
+    accession_map_dao = await get_file_accession_map_dao(
+        dao_factory=joint_fixture.mongodb.dao_factory
+    )
+
+    # Store an accession map via outbox upserted event
+    await joint_fixture.kafka.publish_event(
+        payload=ACCESSION_MAP_1.model_dump(),
+        type_="upserted",
+        topic=joint_fixture.config.accession_map_topic,
+        key=ACCESSION1,
+    )
+    await joint_fixture.event_subscriber.run(forever=False)
+
+    stored_map = await accession_map_dao.get_by_id(ACCESSION1)
+    assert stored_map == ACCESSION_MAP_1
+
+    # Delete it via outbox deleted event
+    await joint_fixture.kafka.publish_event(
+        payload={},
+        type_="deleted",
+        topic=joint_fixture.config.accession_map_topic,
+        key=ACCESSION1,
+    )
+    await joint_fixture.event_subscriber.run(forever=False)
+
+    with pytest.raises(ResourceNotFoundError):
+        await accession_map_dao.get_by_id(ACCESSION1)

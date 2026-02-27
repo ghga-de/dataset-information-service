@@ -51,16 +51,16 @@ from dins.ports.inbound.dao import (
 from dins.ports.inbound.information_service import InformationServicePort
 from tests.fixtures.config import get_config
 
-InMemFileInformationDao: type[FileInformationDaoPort] = new_mock_dao_class(
+InMemFileInformationDao: type[FileInformationDaoPort] = new_mock_dao_class(  # type: ignore
     dto_model=FileInformation, id_field="accession"
 )
-InMemAccessionMapDao: type[FileAccessionMapDaoPort] = new_mock_dao_class(
+InMemAccessionMapDao: type[FileAccessionMapDaoPort] = new_mock_dao_class(  # type: ignore
     dto_model=FileAccessionMap, id_field="accession"
 )
-InMemPendingFileInfoDao: type[PendingFileInfoDaoPort] = new_mock_dao_class(
+InMemPendingFileInfoDao: type[PendingFileInfoDaoPort] = new_mock_dao_class(  # type: ignore
     dto_model=PendingFileInfo, id_field="file_id"
 )
-InMemDatasetDao: type[DatasetDaoPort] = new_mock_dao_class(
+InMemDatasetDao: type[DatasetDaoPort] = new_mock_dao_class(  # type: ignore
     dto_model=DatasetFileAccessions, id_field="accession"
 )
 

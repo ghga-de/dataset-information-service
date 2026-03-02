@@ -29,7 +29,7 @@ from dins.ports.inbound.dao import (
 async def get_file_information_dao(
     *, dao_factory: DaoFactoryProtocol
 ) -> FileInformationDaoPort:
-    """Setup the DAOs using the specified provider of the DaoFactoryProtocol."""
+    """Set up the FileInformation DAO using the specified provider of the DaoFactoryProtocol."""
     return await dao_factory.get_dao(
         name="file_information",
         dto_model=models.FileInformation,
@@ -40,7 +40,7 @@ async def get_file_information_dao(
 async def get_file_accession_map_dao(
     *, dao_factory: DaoFactoryProtocol
 ) -> FileAccessionMapDaoPort:
-    """Setup the DAOs using the specified provider of the DaoFactoryProtocol."""
+    """Set up the FileAccessionMap DAO using the specified provider of the DaoFactoryProtocol."""
     return await dao_factory.get_dao(
         name="fileAccessionMaps",
         dto_model=models.FileAccessionMap,
@@ -52,7 +52,7 @@ async def get_file_accession_map_dao(
 async def get_pending_file_info_dao(
     *, dao_factory: DaoFactoryProtocol
 ) -> PendingFileInfoDaoPort:
-    """Setup the DAOs using the specified provider of the DaoFactoryProtocol."""
+    """Set up the PendingFileInfo DAO using the specified provider of the DaoFactoryProtocol."""
     return await dao_factory.get_dao(
         name="pendingFileInfo",
         dto_model=models.PendingFileInfo,
@@ -61,7 +61,7 @@ async def get_pending_file_info_dao(
 
 
 async def get_dataset_dao(*, dao_factory: DaoFactoryProtocol) -> DatasetDaoPort:
-    """Setup the DAOs using the specified provider of the DaoFactoryProtocol."""
+    """Set up the DatasetFileAccessions DAO using the specified provider of the DaoFactoryProtocol."""
     return await dao_factory.get_dao(
         name="datasetFileAccessions",
         dto_model=models.DatasetFileAccessions,

@@ -39,7 +39,7 @@ class HttpDatasetNotFoundError(HttpCustomExceptionBase):
 
 
 class HttpInformationNotFoundError(HttpCustomExceptionBase):
-    """Raised when a file with given accession could not be found."""
+    """Raised when a file with the given accession could not be found."""
 
     exception_id = "informationNotFound"
 

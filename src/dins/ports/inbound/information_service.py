@@ -33,7 +33,6 @@ class InformationServicePort(ABC):
     metadata for files registered with the Internal File Registry service.
     """
 
-    # TODO: Re-evaluate errors for naming, doc strings, text, params, etc.
     class MismatchingFileInformationAlreadyRegistered(RuntimeError):
         """Raised when the given accession is already registered but the info doesn't match."""
 
@@ -52,11 +51,11 @@ class InformationServicePort(ABC):
         """Raised when information for a given dataset accession is not registered."""
 
         def __init__(self, *, dataset_accession: str):
-            message = f"Mapping for the dataset with ID {dataset_accession} is not registered."
+            message = f"Mapping for the dataset with accession {dataset_accession} is not registered."
             super().__init__(message)
 
     class InformationNotFoundError(RuntimeError):
-        """Raised when information for a given file ID is not registered."""
+        """Raised when information for a given file accession is not registered."""
 
         def __init__(self, *, accession: str):
             message = f"Information for the file with accession {accession} is not registered."
@@ -82,7 +81,8 @@ class InformationServicePort(ABC):
     async def delete_file_information(self, file_id: UUID4) -> None:
         """Delete FileInformation for the given file ID.
 
-        If no such FileInformation exists, logs and returns early.
+        If no accession map is found for the file ID, logs and returns early.
+        If the accession map exists but no FileInformation is stored, logs and returns.
         """
 
     @abstractmethod
@@ -97,23 +97,27 @@ class InformationServicePort(ABC):
 
     @abstractmethod
     async def store_pending_file_info(self, *, pending: PendingFileInfo) -> None:
-        """Store a PendingFileInfo record.
+        """Store a PendingFileInfo record. Duplicates are ignored.
 
-        No-ops on exact duplicates. Logs an error if differing data is already stored.
+        Raises MismatchingPendingFileInfoExists if differing data is already stored.
         """
 
     @abstractmethod
     async def store_accession_map(self, *, accession_map: FileAccessionMap) -> None:
         """Upsert an accession map, then merge any waiting PendingFileInfo into FileInformation.
 
-        Rejects the update if a FileInformation record already exists for the accession.
-        No-ops on exact duplicates. After upserting, triggers a merge if a PendingFileInfo
+        Raises MismatchingFileInformationAlreadyRegistered if the accession is already mapped
+        to a different file_id and a FileInformation record already exists for this accession.
+        Ignores duplicates. After upserting, triggers a merge if a PendingFileInfo
         record exists for the associated file_id.
         """
 
     @abstractmethod
     async def delete_accession_map(self, *, accession: str) -> None:
-        """Delete the mapping for a given accession"""
+        """Delete the accession map entry identified by the given accession.
+
+        No error is raised if no entry exists for the accession.
+        """
 
     @abstractmethod
     async def serve_dataset_information(

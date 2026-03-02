@@ -21,12 +21,6 @@ import ghga_event_schemas.pydantic_ as event_schemas
 from hexkit.protocols.dao import NoHitsFoundError, ResourceNotFoundError
 from pydantic import UUID4
 
-from dins.adapters.outbound.dao import (
-    DatasetDaoPort,
-    FileAccessionMapDaoPort,
-    FileInformationDaoPort,
-    PendingFileInfoDaoPort,
-)
 from dins.core.models import (
     DatasetFileAccessions,
     DatasetFileInformation,
@@ -35,6 +29,12 @@ from dins.core.models import (
     FileInformation,
     FileInternallyRegistered,
     PendingFileInfo,
+)
+from dins.ports.inbound.dao import (
+    DatasetDaoPort,
+    FileAccessionMapDaoPort,
+    FileInformationDaoPort,
+    PendingFileInfoDaoPort,
 )
 from dins.ports.inbound.information_service import InformationServicePort
 
@@ -62,18 +62,17 @@ class InformationService(InformationServicePort):
     async def delete_dataset_information(self, dataset_id: str):
         """Delete dataset to file accession mapping when the corresponding dataset is deleted."""
         try:
-            await self._dataset_dao.get_by_id(dataset_id)
+            await self._dataset_dao.delete(dataset_id)
         except ResourceNotFoundError:
-            log.info("Mapping for dataset with id %s does not exist.", dataset_id)
-            return
-
-        await self._dataset_dao.delete(dataset_id)
-        log.info("Successfully deleted mapping for dataset with id %s.", dataset_id)
+            log.info("Mapping for dataset %s does not exist.", dataset_id)
+        else:
+            log.info("Successfully deleted mapping for dataset %s.", dataset_id)
 
     async def delete_file_information(self, file_id: UUID4):
         """Delete FileInformation for the given file ID.
 
-        If no such FileInformation exists, logs and returns early.
+        If no accession map is found for the file ID, logs and returns early.
+        If the accession map exists but no FileInformation is stored, logs and returns.
         """
         try:
             accession_map = await self._accession_map_dao.find_one(
@@ -156,7 +155,10 @@ class InformationService(InformationServicePort):
         missing_accessions = set(dataset.file_accessions) - matched_accessions
 
         log.debug(
-            f"{dataset_id}: File information found: [{matched_accessions}]; Missing: [{missing_accessions}]"
+            "%s: File information found: [%s]; Missing: [%s]",
+            dataset_id,
+            matched_accessions,
+            missing_accessions,
         )
 
         file_accessions = [
@@ -182,9 +184,9 @@ class InformationService(InformationServicePort):
         return file_information
 
     async def store_pending_file_info(self, *, pending: PendingFileInfo) -> None:
-        """Store a PendingFileInfo record.
+        """Store a PendingFileInfo record. Duplicates are ignored.
 
-        No-ops on exact duplicates. Logs an error if differing data is already stored.
+        Raises MismatchingPendingFileInfoExists if differing data is already stored.
         """
         try:
             existing_pending = await self._pending_file_info_dao.get_by_id(
@@ -238,23 +240,26 @@ class InformationService(InformationServicePort):
     # TODO: Rearrange methods to match the port
 
     async def store_accession_map(self, *, accession_map: FileAccessionMap) -> None:
-        """Store an accession map in the database.
+        """Upsert an accession map, then merge any waiting PendingFileInfo into FileInformation.
 
-        Triggers an error if a FileInformation record already exists for this accession.
-        Otherwise upserts freely, then checks for a pending file info to merge.
+        Raises MismatchingFileInformationAlreadyRegistered if the accession is already mapped
+        to a different file_id and a FileInformation record already exists for this accession.
+        Ignores duplicates. After upserting, triggers a merge if a PendingFileInfo
+        record exists for the associated file_id.
         """
         accession = accession_map.accession
-        map_exists = False
-        with suppress(ResourceNotFoundError):
+        try:
             existing_map = await self._accession_map_dao.get_by_id(accession)
-            map_exists = True
+        except ResourceNotFoundError:
+            existing_map = None
 
         # Handle potential inconsistencies
-        if map_exists and accession_map.model_dump() != existing_map.model_dump():
+        if (
+            existing_map is not None
+            and accession_map.model_dump() != existing_map.model_dump()
+        ):
             with suppress(ResourceNotFoundError):
-                file_information = await self._file_information_dao.get_by_id(
-                    accession_map.accession
-                )
+                await self._file_information_dao.get_by_id(accession_map.accession)
                 log.error(
                     "FileInformation is already registered for accession %s, but this"
                     + " accession map is different from what is stored already.",
@@ -315,7 +320,7 @@ class InformationService(InformationServicePort):
     async def delete_accession_map(self, *, accession: str) -> None:
         """Delete the accession map entry identified by the given accession.
 
-        Logs and returns early if no entry exists for the accession.
+        No error is raised if no entry exists for the accession.
         """
         try:
             await self._accession_map_dao.delete(accession)

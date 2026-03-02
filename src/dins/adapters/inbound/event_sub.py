@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Receive events related to Datasets and recently registered File Uploads"""
+"""Inbound event subscriber translators for file registration, dataset, and accession map events."""
 
 import logging
 
@@ -88,10 +88,11 @@ class EventSubTranslator(EventSubscriberProtocol):
         Receive and process an event with already validated topic and type.
 
         Args:
-            payload (JsonObject): The data/payload to send with the event.
+            payload (JsonObject): The data/payload received with the event.
             type_ (str): The type of the event.
             topic (str): Name of the topic the event was published to.
             key (str): The key associated with the event.
+            event_id (UUID4): The unique identifier of the event.
         """
         if type_ == self._config.file_internally_registered_type:
             await self._consume_file_internally_registered(payload=payload)

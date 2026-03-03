@@ -77,7 +77,10 @@ class InformationService(InformationServicePort):
         try:
             await self._dataset_dao.delete(dataset_id)
         except ResourceNotFoundError:
-            log.info("Mapping for dataset %s does not exist.", dataset_id)
+            log.info(
+                "Mapping for dataset %s does not exist, presumed already deleted.",
+                dataset_id,
+            )
         else:
             log.info("Successfully deleted mapping for dataset %s.", dataset_id)
 

@@ -59,6 +59,19 @@ class InformationService(InformationServicePort):
         self._file_information_dao = file_information_dao
         self._pending_file_info_dao = pending_file_info_dao
 
+    async def register_dataset_information(
+        self, dataset: event_schemas.MetadataDatasetOverview
+    ):
+        """Extract dataset to file accession mapping and store it."""
+        dataset_accession = dataset.accession
+        file_accessions = [file.accession for file in dataset.files]
+
+        dataset_file_accessions = DatasetFileAccessions(
+            accession=dataset_accession, file_accessions=file_accessions
+        )
+
+        await self._dataset_dao.upsert(dataset_file_accessions)
+
     async def delete_dataset_information(self, dataset_id: str):
         """Delete dataset to file accession mapping when the corresponding dataset is deleted."""
         try:
@@ -67,6 +80,25 @@ class InformationService(InformationServicePort):
             log.info("Mapping for dataset %s does not exist.", dataset_id)
         else:
             log.info("Successfully deleted mapping for dataset %s.", dataset_id)
+
+    async def register_file_information(self, file_information: FileInformation):
+        """Store information for a file newly registered with the Internal File Registry."""
+        accession = file_information.accession
+
+        try:
+            existing_information = await self._file_information_dao.get_by_id(accession)
+        except ResourceNotFoundError:
+            await self._file_information_dao.insert(file_information)
+            log.debug("Successfully inserted information for file %s.", accession)
+        else:
+            log.debug("Found existing information for file %s.", accession)
+            # Log and raise if information to be inserted is a mismatch
+            if existing_information.model_dump() != file_information.model_dump():
+                information_exists = self.MismatchingFileInformationAlreadyRegistered(
+                    accession=accession
+                )
+                log.error(information_exists)
+                raise information_exists
 
     async def delete_file_information(self, file_id: UUID4):
         """Delete FileInformation for the given file ID.
@@ -95,118 +127,6 @@ class InformationService(InformationServicePort):
             log.info(
                 "Successfully deleted entries for file with accession %s.", accession
             )
-
-    async def register_dataset_information(
-        self, dataset: event_schemas.MetadataDatasetOverview
-    ):
-        """Extract dataset to file accession mapping and store it."""
-        dataset_accession = dataset.accession
-        file_accessions = [file.accession for file in dataset.files]
-
-        dataset_file_accessions = DatasetFileAccessions(
-            accession=dataset_accession, file_accessions=file_accessions
-        )
-
-        await self._dataset_dao.upsert(dataset_file_accessions)
-
-    async def register_file_information(self, file_information: FileInformation):
-        """Store information for a file newly registered with the Internal File Registry."""
-        accession = file_information.accession
-
-        try:
-            existing_information = await self._file_information_dao.get_by_id(accession)
-        except ResourceNotFoundError:
-            await self._file_information_dao.insert(file_information)
-            log.debug("Successfully inserted information for file %s.", accession)
-        else:
-            log.debug("Found existing information for file %s.", accession)
-            # Log and raise if information to be inserted is a mismatch
-            if existing_information.model_dump() != file_information.model_dump():
-                information_exists = self.MismatchingFileInformationAlreadyRegistered(
-                    accession=accession
-                )
-                log.error(information_exists)
-                raise information_exists
-
-    async def serve_dataset_information(
-        self, dataset_id: str
-    ) -> DatasetFileInformation:
-        """Retrieve stored public information for the given dataset ID to be served by the API."""
-        try:
-            dataset = await self._dataset_dao.get_by_id(dataset_id)
-            log.debug("Found mapping for dataset %s.", dataset_id)
-        except ResourceNotFoundError as error:
-            dataset_not_found = self.DatasetNotFoundError(dataset_accession=dataset_id)
-            log.debug(dataset_not_found)
-            raise dataset_not_found from error
-
-        file_accessions_mapping = {"accession": {"$in": dataset.file_accessions}}
-
-        file_informations = [
-            single_file_information
-            async for single_file_information in self._file_information_dao.find_all(
-                mapping=file_accessions_mapping
-            )
-        ]
-
-        matched_accessions = {
-            file_information.accession for file_information in file_informations
-        }
-        missing_accessions = set(dataset.file_accessions) - matched_accessions
-
-        log.debug(
-            "%s: File information found: [%s]; Missing: [%s]",
-            dataset_id,
-            matched_accessions,
-            missing_accessions,
-        )
-
-        file_accessions = [
-            FileAccession(accession=accession) for accession in missing_accessions
-        ]
-
-        combined = sorted(
-            file_informations + file_accessions, key=lambda x: x.accession
-        )
-
-        return DatasetFileInformation(accession=dataset_id, file_information=combined)
-
-    async def serve_file_information(self, accession: str) -> FileInformation:
-        """Retrieve stored public information for the given file accession to be served by the API."""
-        try:
-            file_information = await self._file_information_dao.get_by_id(accession)
-            log.debug("Found information for file %s.", accession)
-        except ResourceNotFoundError as error:
-            information_not_found = self.InformationNotFoundError(accession=accession)
-            log.debug(information_not_found)
-            raise information_not_found from error
-
-        return file_information
-
-    async def store_pending_file_info(self, *, pending: PendingFileInfo) -> None:
-        """Store a PendingFileInfo record. Duplicates are ignored.
-
-        Raises MismatchingPendingFileInfoExists if differing data is already stored.
-        """
-        try:
-            existing_pending = await self._pending_file_info_dao.get_by_id(
-                pending.file_id
-            )
-        except ResourceNotFoundError:
-            await self._pending_file_info_dao.insert(pending)
-            log.debug("Stored pending file info for file_id %s.", pending.file_id)
-        else:
-            if existing_pending.model_dump() == pending.model_dump():
-                log.info(
-                    "Duplicate pending file info received for file_id %s, skipping.",
-                    pending.file_id,
-                )
-            else:
-                mismatch = self.MismatchingPendingFileInfoExists(
-                    file_id=pending.file_id
-                )
-                log.error(mismatch)
-                raise mismatch
 
     async def handle_file_internally_registered(
         self, *, file: FileInternallyRegistered
@@ -237,7 +157,30 @@ class InformationService(InformationServicePort):
             )
             await self.register_file_information(file_information=file_information)
 
-    # TODO: Rearrange methods to match the port
+    async def store_pending_file_info(self, *, pending: PendingFileInfo) -> None:
+        """Store a PendingFileInfo record. Duplicates are ignored.
+
+        Raises MismatchingPendingFileInfoExists if differing data is already stored.
+        """
+        try:
+            existing_pending = await self._pending_file_info_dao.get_by_id(
+                pending.file_id
+            )
+        except ResourceNotFoundError:
+            await self._pending_file_info_dao.insert(pending)
+            log.debug("Stored pending file info for file_id %s.", pending.file_id)
+        else:
+            if existing_pending.model_dump() == pending.model_dump():
+                log.info(
+                    "Duplicate pending file info received for file_id %s, skipping.",
+                    pending.file_id,
+                )
+            else:
+                mismatch = self.MismatchingPendingFileInfoExists(
+                    file_id=pending.file_id
+                )
+                log.error(mismatch)
+                raise mismatch
 
     async def store_accession_map(self, *, accession_map: FileAccessionMap) -> None:
         """Upsert an accession map, then merge any waiting PendingFileInfo into FileInformation.
@@ -328,3 +271,58 @@ class InformationService(InformationServicePort):
             log.info("Accession map for accession %s does not exist.", accession)
         else:
             log.info("Accession mapping deleted for accession %s.", accession)
+
+    async def serve_dataset_information(
+        self, dataset_id: str
+    ) -> DatasetFileInformation:
+        """Retrieve stored public information for the given dataset ID to be served by the API."""
+        try:
+            dataset = await self._dataset_dao.get_by_id(dataset_id)
+            log.debug("Found mapping for dataset %s.", dataset_id)
+        except ResourceNotFoundError as error:
+            dataset_not_found = self.DatasetNotFoundError(dataset_accession=dataset_id)
+            log.debug(dataset_not_found)
+            raise dataset_not_found from error
+
+        file_accessions_mapping = {"accession": {"$in": dataset.file_accessions}}
+
+        file_informations = [
+            single_file_information
+            async for single_file_information in self._file_information_dao.find_all(
+                mapping=file_accessions_mapping
+            )
+        ]
+
+        matched_accessions = {
+            file_information.accession for file_information in file_informations
+        }
+        missing_accessions = set(dataset.file_accessions) - matched_accessions
+
+        log.debug(
+            "%s: File information found: [%s]; Missing: [%s]",
+            dataset_id,
+            matched_accessions,
+            missing_accessions,
+        )
+
+        file_accessions = [
+            FileAccession(accession=accession) for accession in missing_accessions
+        ]
+
+        combined = sorted(
+            file_informations + file_accessions, key=lambda x: x.accession
+        )
+
+        return DatasetFileInformation(accession=dataset_id, file_information=combined)
+
+    async def serve_file_information(self, accession: str) -> FileInformation:
+        """Retrieve stored public information for the given file accession to be served by the API."""
+        try:
+            file_information = await self._file_information_dao.get_by_id(accession)
+            log.debug("Found information for file %s.", accession)
+        except ResourceNotFoundError as error:
+            information_not_found = self.InformationNotFoundError(accession=accession)
+            log.debug(information_not_found)
+            raise information_not_found from error
+
+        return file_information

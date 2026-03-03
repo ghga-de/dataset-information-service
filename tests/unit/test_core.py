@@ -42,7 +42,7 @@ async def test_register_dataset_information_happy(rig: JointRig):
     expected = DatasetFileAccessions(
         accession="DS001", file_accessions=["GHGA001", "GHGA002"]
     )
-    assert stored.model_dump() == expected.model_dump()
+    assert stored == expected
 
 
 async def test_register_dataset_information_update(rig: JointRig):
@@ -72,7 +72,7 @@ async def test_register_dataset_information_update(rig: JointRig):
     expected = DatasetFileAccessions(
         accession="DS001", file_accessions=["GHGA001", "GHGA002"]
     )
-    assert stored[0].model_dump() == expected.model_dump()
+    assert stored[0] == expected
 
 
 async def test_delete_dataset_information(rig: JointRig):
@@ -102,7 +102,7 @@ async def test_register_file_information_happy(rig: JointRig):
     )
 
     stored = await rig.file_information_dao.get_by_id(file_information.accession)
-    assert stored.model_dump() == file_information.model_dump()
+    assert stored == file_information
 
 
 async def test_register_file_information_duplicate(rig: JointRig):
@@ -204,7 +204,7 @@ async def test_store_pending_file_info_happy(rig: JointRig):
         decrypted_sha256=fir_event_payload.decrypted_sha256,
         storage_alias=fir_event_payload.storage_alias,
     )
-    assert stored_data.model_dump() == expected_data.model_dump()
+    assert stored_data == expected_data
 
 
 async def test_store_pending_file_info_duplicate(rig: JointRig):
@@ -251,7 +251,7 @@ async def test_store_accession_map_happy(rig: JointRig):
     await rig.information_service.store_accession_map(accession_map=accession_map)
 
     stored_map = await rig.accession_map_dao.get_by_id(accession_map.accession)
-    assert stored_map.model_dump() == accession_map.model_dump()
+    assert stored_map == accession_map
 
 
 async def test_store_accession_map_updates(rig: JointRig):
@@ -269,7 +269,7 @@ async def test_store_accession_map_updates(rig: JointRig):
     accession_map2 = make_accession_map(accession=accession, file_id=file_id)
     await rig.information_service.store_accession_map(accession_map=accession_map2)
     stored_map = await rig.accession_map_dao.get_by_id(accession)
-    assert stored_map.model_dump() == accession_map2.model_dump()
+    assert stored_map == accession_map2
 
     # Insert a FileInformation object for the file ID on the accession map
     file_information = make_file_information(accession)

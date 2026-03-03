@@ -96,7 +96,7 @@ class InformationService(InformationServicePort):
         else:
             log.debug("Found existing information for file %s.", accession)
             # Log and raise if information to be inserted is a mismatch
-            if existing_information.model_dump() != file_information.model_dump():
+            if existing_information != file_information:
                 information_exists = self.MismatchingFileInformationAlreadyRegistered(
                     accession=accession
                 )
@@ -173,7 +173,7 @@ class InformationService(InformationServicePort):
             await self._pending_file_info_dao.insert(pending)
             log.debug("Stored pending file info for file_id %s.", pending.file_id)
         else:
-            if existing_pending.model_dump() == pending.model_dump():
+            if existing_pending == pending:
                 log.info(
                     "Duplicate pending file info received for file_id %s, skipping.",
                     pending.file_id,
@@ -200,10 +200,7 @@ class InformationService(InformationServicePort):
             existing_map = None
 
         # Handle potential inconsistencies
-        if (
-            existing_map is not None
-            and accession_map.model_dump() != existing_map.model_dump()
-        ):
+        if existing_map is not None and accession_map != existing_map:
             with suppress(ResourceNotFoundError):
                 await self._file_information_dao.get_by_id(accession_map.accession)
                 log.error(

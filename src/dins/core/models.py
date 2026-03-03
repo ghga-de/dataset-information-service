@@ -103,22 +103,16 @@ class PendingFileInfo(BaseModel):
     )
 
 
-class FileInternallyRegistered(BaseModel):
+class FileInternallyRegistered(PendingFileInfo):
     """An event schema communicating that a file has been copied into permanent storage.
 
     This local definition will be replaced by the `ghga-event-schemas` definition
     once implemented there.
     """
 
-    file_id: UUID4 = Field(
-        default=..., description="Unique identifier for the file upload"
-    )
     archive_date: UTCDatetime = Field(
         default=...,
         description="The date and time when this file was archived.",
-    )
-    storage_alias: str = Field(
-        default=..., description="The storage alias of the Data Hub housing the file"
     )
     bucket_id: str = Field(
         default=..., description="The ID/name of the S3 bucket used to store the file."
@@ -126,15 +120,8 @@ class FileInternallyRegistered(BaseModel):
     secret_id: str = Field(
         default=..., description="The ID of the file decryption secret."
     )
-    decrypted_size: int = Field(
-        default=..., description="The size of the unencrypted file"
-    )
     encrypted_size: int = Field(
         default=..., description="The encrypted size of the file before re-encryption"
-    )
-    decrypted_sha256: str = Field(
-        default=...,
-        description="SHA-256 checksum of the entire unencrypted file content",
     )
     encrypted_parts_md5: list[str] = Field(
         default=..., description="The MD5 checksum of each encrypted file part"

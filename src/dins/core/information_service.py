@@ -171,7 +171,7 @@ class InformationService(InformationServicePort):
             )
         except ResourceNotFoundError:
             await self._pending_file_info_dao.insert(pending)
-            log.debug("Stored pending file info for file_id %s.", pending.file_id)
+            log.info("Stored pending file info for file_id %s.", pending.file_id)
         else:
             if existing_pending == pending:
                 log.info(
@@ -231,7 +231,7 @@ class InformationService(InformationServicePort):
         try:
             pending = await self._pending_file_info_dao.get_by_id(accession_map.file_id)
         except ResourceNotFoundError:
-            log.debug(
+            log.info(
                 "Accession map received for %s but still waiting for FileInternallyRegistered event.",
                 accession,
             )
@@ -244,7 +244,7 @@ class InformationService(InformationServicePort):
             sha256_hash=pending.decrypted_sha256,
             storage_alias=pending.storage_alias,
         )
-        log.debug(
+        log.info(
             "Merged accession map for %s with file info for %s, registering FileInformation.",
             accession,
             accession_map.file_id,

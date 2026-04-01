@@ -332,7 +332,7 @@ async def test_accession_map_unique_file_id_index(joint_fixture: JointFixture):
     await joint_fixture.kafka.publish_event(
         payload=ACCESSION_MAP_1.model_dump(),
         type_="upserted",
-        topic=joint_fixture.config.accession_map_topic,
+        topic=joint_fixture.config.alt_accession_topic,
         key=ACCESSION1,
     )
     await joint_fixture.event_subscriber.run(forever=False)
@@ -346,7 +346,7 @@ async def test_accession_map_unique_file_id_index(joint_fixture: JointFixture):
         await joint_fixture.kafka.publish_event(
             payload=duplicate_file_id_map.model_dump(),
             type_="upserted",
-            topic=joint_fixture.config.accession_map_topic,
+            topic=joint_fixture.config.alt_accession_topic,
             key=ACCESSION2,
         )
         await joint_fixture.event_subscriber.run(forever=False)
@@ -364,7 +364,7 @@ async def test_accession_map_deletion_event(joint_fixture: JointFixture):
     await joint_fixture.kafka.publish_event(
         payload=ACCESSION_MAP_1.model_dump(),
         type_="upserted",
-        topic=joint_fixture.config.accession_map_topic,
+        topic=joint_fixture.config.alt_accession_topic,
         key=ACCESSION1,
     )
     await joint_fixture.event_subscriber.run(forever=False)
@@ -376,7 +376,7 @@ async def test_accession_map_deletion_event(joint_fixture: JointFixture):
     await joint_fixture.kafka.publish_event(
         payload={},
         type_="deleted",
-        topic=joint_fixture.config.accession_map_topic,
+        topic=joint_fixture.config.alt_accession_topic,
         key=ACCESSION1,
     )
     await joint_fixture.event_subscriber.run(forever=False)

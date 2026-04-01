@@ -19,7 +19,12 @@ from abc import ABC, abstractmethod
 import ghga_event_schemas.pydantic_ as event_schemas
 from pydantic import UUID4
 
-from dins.core.models import DatasetFileInformation, FileInformation, PendingFileInfo
+from dins.core.models import (
+    AltAccession,
+    DatasetFileInformation,
+    FileInformation,
+    PendingFileInfo,
+)
 
 
 class InformationServicePort(ABC):
@@ -97,9 +102,7 @@ class InformationServicePort(ABC):
         """
 
     @abstractmethod
-    async def store_accession_map(
-        self, *, accession_map: event_schemas.FileAccessionMapping
-    ) -> None:
+    async def store_accession_map(self, *, accession_map: AltAccession) -> None:
         """Upsert an accession map, then merge any waiting PendingFileInfo into FileInformation.
 
         Raises MismatchingFileInformationAlreadyRegistered if the accession is already mapped

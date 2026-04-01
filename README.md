@@ -233,15 +233,11 @@ The service requires the following configuration parameters:
   null
   ```
 
-- <a id="properties/accession_map_topic"></a>**`accession_map_topic`** *(string, required)*: The name of the topic used for file accession map events.
+- <a id="properties/alt_accession_topic"></a>**`alt_accession_topic`** *(string, required)*: The name of the topic used for AltAccession events.
 
   Examples:
   ```json
-  "accession-maps"
-  ```
-
-  ```json
-  "file-accession-maps"
+  "alt-accessions"
   ```
 
 - <a id="properties/file_deletion_request_topic"></a>**`file_deletion_request_topic`** *(string, required)*: The name of the topic to receive events informing about files to delete.

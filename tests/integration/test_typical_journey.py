@@ -324,9 +324,9 @@ async def test_dataset_information_journey(
 
 
 async def test_accession_map_unique_file_id_index(joint_fixture: JointFixture):
-    """Verifies that the unique index on 'file_id' in the accession map collection works.
+    """Verifies that the unique index on 'id' (file UUID) in the accession map collection works.
 
-    Two different accessions must not be mapped to the same file_id. The second
+    Two different accessions must not be mapped to the same file UUID. The second
     event should fail due to the unique index and be sent to the DLQ.
     """
     # Publish and consume the first accession map event - should succeed
@@ -338,8 +338,8 @@ async def test_accession_map_unique_file_id_index(joint_fixture: JointFixture):
     )
     await joint_fixture.event_subscriber.run(forever=False)
 
-    # Publish a second accession map with the same file_id but a different accession.
-    # The unique index on file_id should reject the insert and route the event to the DLQ.
+    # Publish a second accession map with the same file UUID but a different accession.
+    # The unique index on 'id' should reject the insert and route the event to the DLQ.
     duplicate_file_id_map = make_accession_map(accession=ACCESSION2, file_id=FILE_ID_1)
     async with joint_fixture.kafka.record_events(
         in_topic=joint_fixture.config.kafka_dlq_topic

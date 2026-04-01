@@ -107,8 +107,8 @@ class InformationService(InformationServicePort):
     async def delete_file_information(self, file_id: UUID4):
         """Delete FileInformation for the given file ID.
 
-        If no accession map is found for the file ID, logs and returns early.
-        If the accession map exists but no FileInformation is stored, logs and returns.
+        If no AltAccession record is found for the file ID, logs and returns early.
+        If the AltAccession record exists but no FileInformation is stored, logs and returns.
         """
         try:
             accession_map = await self._accession_map_dao.find_one(
@@ -137,7 +137,7 @@ class InformationService(InformationServicePort):
     ) -> None:
         """Decide how to handle a new file registration.
 
-        If a corresponding FileAccessionMap already exists, merge and store FileInformation.
+        If a corresponding AltAccession record already exists, merge and store FileInformation.
         If not, temporarily store the essential fields as a PendingFileInfo instance.
         """
         try:

@@ -25,6 +25,8 @@ from pydantic import (
 )
 
 __all__ = [
+    "AltAccession",
+    "AltAccessionType",
     "DatasetFileAccessions",
     "DatasetFileInformation",
     "FileAccession",
@@ -102,7 +104,7 @@ class DatasetFileInformation(BaseModel):
 
 
 class PendingFileInfo(BaseModel):
-    """Temporarily stored file registration data awaiting the corresponding accession map."""
+    """Temporarily stored file registration data awaiting the corresponding AltAccession record."""
 
     file_id: UUID4 = Field(
         default=..., description="Unique identifier for the file upload"

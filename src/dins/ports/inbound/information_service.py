@@ -103,7 +103,8 @@ class InformationServicePort(ABC):
 
     @abstractmethod
     async def store_accession_map(self, *, accession_map: AltAccession) -> None:
-        """Upsert an accession map, then merge any waiting PendingFileInfo into FileInformation.
+        """Upsert an accession map using a FILE_ID-type AltAccession, then
+        merge any waiting PendingFileInfo into FileInformation.
 
         Raises MismatchingFileInformationAlreadyRegistered if the accession is already mapped
         to a different file_id and a FileInformation record already exists for this accession.

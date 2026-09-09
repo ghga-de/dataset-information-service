@@ -3,6 +3,18 @@
 
 # Dataset Information Service
 
+> [!IMPORTANT]
+> **This repository is archived and no longer maintained.**
+>
+> Development of the dataset information service continues in the GHGA mono repository at
+> [ghga-de/ghga](https://github.com/ghga-de/ghga), where the service now lives under
+> [`services/dataset-information-service`](https://github.com/ghga-de/ghga/tree/main/services/dataset-information-service).
+> Please open issues and pull requests there.
+>
+> This repository is kept read-only for its history. Version 7.0.2 (August 2026) was the
+> last release made here; everything after that has been developed in the mono repository.
+> The documentation below describes the state of the code as of that version.
+
 Dataset Information Service - Providing public metadata about files registered with the Internal File Registry
 
 ## Description
